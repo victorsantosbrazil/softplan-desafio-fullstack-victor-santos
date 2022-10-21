@@ -20,7 +20,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.victorsantos.processmanagementapi.security.users.UserRole;
 import com.victorsantos.processmanagementapi.users.data.repositories.UserJpaRepository;
 import com.victorsantos.processmanagementapi.users.data.repositories.models.UserDataModel;
 
@@ -46,7 +45,7 @@ class CreateUserCaseIntegrationTest {
         .name("Jonh Snow")
         .email("jonh.snow@gmail.com")
         .password("123456")
-        .role(UserRole.ADMIN)
+        .role("ADMIN")
         .build();
 
     String mockEncodedPassword = "façfakdfdafd";
@@ -79,7 +78,7 @@ class CreateUserCaseIntegrationTest {
         .name("")
         .email("jonh.snow#gmail.com")
         .password("123456")
-        .role(UserRole.ADMIN)
+        .role("ADMIN")
         .build();
 
     mockMvc.perform(

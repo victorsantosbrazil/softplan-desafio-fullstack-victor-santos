@@ -8,8 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.victorsantos.processmanagementapi.security.users.UserRole;
-
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = CommonUserFactory.class)
 class CommonUserFactoryTest {
@@ -23,7 +21,7 @@ class CommonUserFactoryTest {
     String name = "John Snow";
     String email = "john.snow@gmail.com";
     String password = "fadfalkfja";
-    UserRole role = UserRole.ADMIN;
+    String role = "ADMIN";
 
     User user = userFactory.create(id, name, email, password, role);
     User expectedUser = CommonUser.builder()

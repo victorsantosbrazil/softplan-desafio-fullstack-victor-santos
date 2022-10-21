@@ -17,7 +17,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.victorsantos.processmanagementapi.exceptions.ValidationException;
-import com.victorsantos.processmanagementapi.security.users.UserRole;
 import com.victorsantos.processmanagementapi.users.data.SaveUserDataRequest;
 import com.victorsantos.processmanagementapi.users.data.UserDataGateway;
 import com.victorsantos.processmanagementapi.users.data.UserDataResponse;
@@ -54,7 +53,7 @@ class CreateUserUserCaseImplTest {
                 .name("Jonh Snow")
                 .email("jonh.snow@gmail.com")
                 .password("123456")
-                .role(UserRole.ADMIN)
+                .role("ADMIN")
                 .build();
 
         SaveUserDataRequest expectedSavedData = SaveUserDataRequest.builder()
@@ -98,7 +97,7 @@ class CreateUserUserCaseImplTest {
                 .name("")
                 .email("jonh.snow@gmail.com")
                 .password("123456")
-                .role(UserRole.ADMIN)
+                .role("ADMIN")
                 .build();
 
         User user = CommonUser.builder()

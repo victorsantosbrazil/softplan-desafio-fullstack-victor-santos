@@ -1,7 +1,9 @@
 package com.victorsantos.processmanagementapi.users.entities.validation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -84,11 +86,22 @@ public class CommonUserValidator implements UserValidator {
     return violations;
   }
 
-  private List<ConstraintViolation> validateRole(UserRole role) {
+  private List<ConstraintViolation> validateRole(String role) {
     List<ConstraintViolation> violations = new ArrayList<>();
 
     if (role == null) {
       ConstraintViolation violation = new ConstraintViolation("role", "role required");
+      violations.add(violation);
+      return violations;
+    }
+
+    List<String> roles = Arrays.stream(UserRole.values()).map(UserRole::name).collect(Collectors.toList());
+
+    boolean containsRole = roles.contains(role);
+    if (!containsRole) {
+      ConstraintViolation violation = new ConstraintViolation("role",
+          "role is invalid. Possible roles: " + roles);
+
       violations.add(violation);
     }
 

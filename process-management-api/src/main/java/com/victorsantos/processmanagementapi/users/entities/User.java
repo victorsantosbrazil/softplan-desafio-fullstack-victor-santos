@@ -1,7 +1,5 @@
 package com.victorsantos.processmanagementapi.users.entities;
 
-import com.victorsantos.processmanagementapi.security.users.UserRole;
-
 public interface User {
   public String getId();
 
@@ -19,7 +17,7 @@ public interface User {
 
   public void setPassword(String password);
 
-  public UserRole getRole();
+  public String getRole();
 
-  public void setRole(UserRole role);
+  public void setRole(String role);
 }

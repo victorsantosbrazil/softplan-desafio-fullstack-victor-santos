@@ -14,7 +14,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.victorsantos.processmanagementapi.security.users.UserRole;
 import com.victorsantos.processmanagementapi.users.data.repositories.UserJpaRepository;
 import com.victorsantos.processmanagementapi.users.data.repositories.models.UserDataModel;
 
@@ -33,7 +32,7 @@ class UserJpaTest {
         .name("Jonh Snow")
         .email("jonh.snow@gmail.com")
         .password("123456")
-        .role(UserRole.ADMIN)
+        .role("ADMIN")
         .build();
 
     UUID mockId = UUID.randomUUID();
@@ -74,7 +73,7 @@ class UserJpaTest {
         .name("John Snow")
         .email(email)
         .password("faflfaeklfafda")
-        .role(UserRole.ADMIN)
+        .role("ADMIN")
         .build();
 
     when(userJpaRepository.findByEmail(email)).thenReturn(Optional.of(mockUserDataModel));

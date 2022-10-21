@@ -3,8 +3,10 @@ package com.victorsantos.processmanagementapi.users.entities.validation;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,7 +41,7 @@ class CommonUserValidatorTest {
         .name("Jonh Snow")
         .email("john.snow@gmail.com")
         .password("lkfa320fafda")
-        .role(UserRole.ADMIN)
+        .role(UserRole.ADMIN.toString())
         .build();
 
     when(emailValidator.validate(user.getEmail())).thenReturn(true);
@@ -137,6 +139,19 @@ class CommonUserValidatorTest {
     List<ConstraintViolation> violations = userValidator.validate(user);
 
     ConstraintViolation violation = new ConstraintViolation("role", "role required");
+    assertTrue(violations.contains(violation));
+  }
+
+  @Test
+  void shouldReturnConstraintViolationWhenUserRoleIsInvalid() {
+    User user = CommonUser.builder().role("UKNOWN").build();
+    List<ConstraintViolation> violations = userValidator.validate(user);
+
+    List<String> roles = Arrays.stream(UserRole.values()).map(UserRole::name).collect(Collectors.toList());
+
+    ConstraintViolation violation = new ConstraintViolation("role",
+        "role is invalid. Possible roles: " + roles);
+
     assertTrue(violations.contains(violation));
   }
 }
