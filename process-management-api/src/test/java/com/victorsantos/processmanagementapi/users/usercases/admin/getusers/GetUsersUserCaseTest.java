@@ -25,7 +25,7 @@ import com.victorsantos.processmanagementapi.users.data.UserDataResponse;
 class GetUsersUserCaseTest {
 
   @Autowired
-  private GetUserUserCase userCase;
+  private GetUsersUserCase userCase;
 
   @MockBean
   private UserDataGateway userDataGateway;

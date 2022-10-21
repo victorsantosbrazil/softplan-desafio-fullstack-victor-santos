@@ -20,7 +20,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import com.victorsantos.processmanagementapi.users.usercases.admin.createuser.CreateUserUserCase;
 import com.victorsantos.processmanagementapi.users.usercases.admin.createuser.CreateUserUserCaseRequest;
 import com.victorsantos.processmanagementapi.users.usercases.admin.createuser.CreateUserUserCaseResponse;
-import com.victorsantos.processmanagementapi.users.usercases.admin.getusers.GetUserUserCase;
+import com.victorsantos.processmanagementapi.users.usercases.admin.getuser.GetUserUserCase;
+import com.victorsantos.processmanagementapi.users.usercases.admin.getuser.GetUserUserCaseResponse;
+import com.victorsantos.processmanagementapi.users.usercases.admin.getusers.GetUsersUserCase;
 import com.victorsantos.processmanagementapi.users.usercases.admin.getusers.GetUsersUserCaseResponse;
 
 @ExtendWith(SpringExtension.class)
@@ -33,7 +35,10 @@ class UserControllerTest {
   private CreateUserUserCase createUserUserCase;
 
   @MockBean
-  private GetUserUserCase getUsersUserCase;
+  private GetUsersUserCase getUsersUserCase;
+
+  @MockBean
+  private GetUserUserCase getUserUserCase;
 
   @Test
   void createUser() {
@@ -94,6 +99,25 @@ class UserControllerTest {
     Page<GetUsersUserCaseResponse> responsePage = userController.getUsers(pageable);
 
     assertEquals(mockResponseModelsPage, responsePage);
+
+  }
+
+  @Test
+  void testGetUser() {
+
+    String id = "fdaçkjfdçkaf";
+
+    GetUserUserCaseResponse mockResponse = GetUserUserCaseResponse.builder()
+        .id("flkdafa")
+        .name("John")
+        .role("ADMIN")
+        .build();
+
+    when(getUserUserCase.run(id)).thenReturn(mockResponse);
+
+    GetUserUserCaseResponse response = userController.getUser(id);
+
+    assertEquals(mockResponse, response);
 
   }
 }

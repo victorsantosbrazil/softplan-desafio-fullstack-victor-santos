@@ -11,4 +11,6 @@ public interface UserDataGateway {
   public Optional<UserDataResponse> findByEmail(String email);
 
   public Page<UserDataResponse> findAll(Pageable pageable);
+
+  public Optional<UserDataResponse> findById(String id);
 }

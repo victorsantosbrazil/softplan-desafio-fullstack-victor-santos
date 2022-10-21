@@ -145,4 +145,32 @@ class UserJpaTest {
 
     assertEquals(expectedResponse, response);
   }
+
+  @Test
+  void whenFindByIdThenReturnUserData() {
+    UUID id = UUID.randomUUID();
+
+    UserDataModel mockUserDataModel = UserDataModel.builder()
+        .id(id)
+        .name("Fernando")
+        .email("fernando@test.com")
+        .password("fadfldakjfdçafad")
+        .role("PROCESS_FINISHER")
+        .build();
+
+    when(userJpaRepository.findById(id)).thenReturn(Optional.of(mockUserDataModel));
+
+    UserDataResponse userDataResponse = userJpa.findById(id.toString()).get();
+
+    UserDataResponse expectedUserDataResponse = UserDataResponse.builder()
+        .id(id.toString())
+        .name(mockUserDataModel.getName())
+        .email(mockUserDataModel.getEmail())
+        .password(mockUserDataModel.getPassword())
+        .role(mockUserDataModel.getRole())
+        .build();
+
+    assertEquals(expectedUserDataResponse, userDataResponse);
+
+  }
 }

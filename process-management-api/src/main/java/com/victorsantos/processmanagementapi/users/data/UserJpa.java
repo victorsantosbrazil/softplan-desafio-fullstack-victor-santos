@@ -1,6 +1,7 @@
 package com.victorsantos.processmanagementapi.users.data;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,20 +28,20 @@ public class UserJpa implements UserDataGateway {
 
     userDataModel = userJpaRepository.save(userDataModel);
 
-    return mapUserDataModelToUserDataResponse(userDataModel);
+    return mapToUserDataResponse(userDataModel);
   }
 
   @Override
   public Optional<UserDataResponse> findByEmail(String email) {
-    return userJpaRepository.findByEmail(email).map(this::mapUserDataModelToUserDataResponse);
+    return userJpaRepository.findByEmail(email).map(this::mapToUserDataResponse);
   }
 
   @Override
   public Page<UserDataResponse> findAll(Pageable pageable) {
-    return userJpaRepository.findAll(pageable).map(this::mapUserDataModelToUserDataResponse);
+    return userJpaRepository.findAll(pageable).map(this::mapToUserDataResponse);
   }
 
-  private UserDataResponse mapUserDataModelToUserDataResponse(UserDataModel userDataModel) {
+  private UserDataResponse mapToUserDataResponse(UserDataModel userDataModel) {
     return UserDataResponse.builder()
         .id(userDataModel.getId().toString())
         .name(userDataModel.getName())
@@ -48,6 +49,11 @@ public class UserJpa implements UserDataGateway {
         .password(userDataModel.getPassword())
         .role(userDataModel.getRole())
         .build();
+  }
+
+  @Override
+  public Optional<UserDataResponse> findById(String id) {
+    return userJpaRepository.findById(UUID.fromString(id)).map(this::mapToUserDataResponse);
   }
 
 }

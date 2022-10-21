@@ -9,7 +9,7 @@ import com.victorsantos.processmanagementapi.users.data.UserDataGateway;
 import com.victorsantos.processmanagementapi.users.data.UserDataResponse;
 
 @Component
-public class GetUsersUserCaseImpl implements GetUserUserCase {
+public class GetUsersUserCaseImpl implements GetUsersUserCase {
   @Autowired
   private UserDataGateway userDataGateway;
 
