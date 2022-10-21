@@ -3,6 +3,8 @@ package com.victorsantos.processmanagementapi.users.data;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import com.victorsantos.processmanagementapi.users.data.repositories.UserJpaRepository;
@@ -31,6 +33,11 @@ public class UserJpa implements UserDataGateway {
   @Override
   public Optional<UserDataResponse> findByEmail(String email) {
     return userJpaRepository.findByEmail(email).map(this::mapUserDataModelToUserDataResponse);
+  }
+
+  @Override
+  public Page<UserDataResponse> findAll(Pageable pageable) {
+    return userJpaRepository.findAll(pageable).map(this::mapUserDataModelToUserDataResponse);
   }
 
   private UserDataResponse mapUserDataModelToUserDataResponse(UserDataModel userDataModel) {

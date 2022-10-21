@@ -3,6 +3,8 @@ package com.victorsantos.processmanagementapi.users.data;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -11,6 +13,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -27,7 +33,7 @@ class UserJpaTest {
   private UserJpaRepository userJpaRepository;
 
   @Test
-  void shouldSaveUserData() {
+  void whenSaveThenShouldSaveUserData() {
     SaveUserDataRequest request = SaveUserDataRequest.builder()
         .name("Jonh Snow")
         .email("jonh.snow@gmail.com")
@@ -63,7 +69,7 @@ class UserJpaTest {
   }
 
   @Test
-  void shouldGetUserDataByEmail() {
+  void whenFindByEmailThenShouldGetUserDataByEmail() {
     String email = "test@test.com";
 
     UUID mockId = UUID.randomUUID();
@@ -90,5 +96,53 @@ class UserJpaTest {
 
     assertEquals(expectedUserDataResponse, response.get());
 
+  }
+
+  @Test
+  void whenFindAllThenShouldGetPageOfUsers() {
+    Pageable pageable = PageRequest.of(0, 10);
+
+    List<UserDataModel> mockUsersDataModel = new ArrayList<>();
+
+    UserDataModel mockUserData1 = UserDataModel.builder()
+        .id(UUID.randomUUID())
+        .name("John")
+        .email("john@test.com")
+        .role("ADMIN")
+        .build();
+
+    UserDataModel mockUserData2 = UserDataModel.builder()
+        .id(UUID.randomUUID())
+        .name("Victor")
+        .email("victor@test.com")
+        .role("PROCESS_SCREENER")
+        .build();
+
+    UserDataModel mockUserData3 = UserDataModel.builder()
+        .id(UUID.randomUUID())
+        .name("Fernando")
+        .email("fernando@test.com")
+        .role("PROCESS_FINISHER")
+        .build();
+
+    mockUsersDataModel.add(mockUserData1);
+    mockUsersDataModel.add(mockUserData2);
+    mockUsersDataModel.add(mockUserData3);
+
+    Page<UserDataModel> mockUserDataPage = new PageImpl<>(mockUsersDataModel);
+
+    when(userJpaRepository.findAll(pageable)).thenReturn(mockUserDataPage);
+
+    Page<UserDataResponse> response = userJpa.findAll(pageable);
+    Page<UserDataResponse> expectedResponse = mockUserDataPage
+        .map((userData) -> UserDataResponse.builder()
+            .id(userData.getId().toString())
+            .name(userData.getName())
+            .email(userData.getEmail())
+            .password(userData.getPassword())
+            .role(userData.getRole())
+            .build());
+
+    assertEquals(expectedResponse, response);
   }
 }
