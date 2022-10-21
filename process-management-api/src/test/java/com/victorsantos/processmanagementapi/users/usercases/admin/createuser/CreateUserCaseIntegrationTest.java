@@ -7,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -67,6 +68,32 @@ class CreateUserCaseIntegrationTest {
     assertEquals(request.getEmail(), userData.getEmail());
     assertEquals(mockEncodedPassword, userData.getPassword());
     assertEquals(request.getRole(), userData.getRole());
+
+  }
+
+  @Test
+  void whenRequestWithInvalidFieldsThenReturnValidationErrorResponse() throws JsonProcessingException, Exception {
+    final String path = "/users";
+
+    CreateUserUserCaseRequest request = CreateUserUserCaseRequest.builder()
+        .name("")
+        .email("jonh.snow#gmail.com")
+        .password("123456")
+        .role(UserRole.ADMIN)
+        .build();
+
+    mockMvc.perform(
+        post(path)
+            .contentType("application/json")
+            .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.timestamp").isNotEmpty())
+        .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
+        .andExpect(jsonPath("$.message").value("Validation error"))
+        .andExpect(jsonPath("$.violations[0].propertyPath").value("name"))
+        .andExpect(jsonPath("$.violations[0].errorMessage").value("name required"))
+        .andExpect(jsonPath("$.violations[1].propertyPath").value("email"))
+        .andExpect(jsonPath("$.violations[1].errorMessage").value("email is invalid"));
 
   }
 }

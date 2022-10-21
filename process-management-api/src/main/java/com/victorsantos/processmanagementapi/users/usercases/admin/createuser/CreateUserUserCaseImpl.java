@@ -37,7 +37,7 @@ public class CreateUserUserCaseImpl implements CreateUserUserCase {
     List<ConstraintViolation> violations = userValidator.validate(user);
 
     if (violations.size() > 0) {
-      throw new ValidationException(violations);
+      throw new ValidationException("Validation error", violations);
     }
 
     String encodedPassword = passwordEncoder.encode(request.getPassword());

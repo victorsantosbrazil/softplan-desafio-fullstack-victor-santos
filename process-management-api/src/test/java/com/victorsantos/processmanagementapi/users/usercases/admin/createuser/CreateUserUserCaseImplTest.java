@@ -30,92 +30,92 @@ import com.victorsantos.processmanagementapi.utils.validation.ConstraintViolatio
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = CreateUserUserCaseImpl.class)
 class CreateUserUserCaseImplTest {
-  @Autowired
-  private CreateUserUserCase userCase;
+    @Autowired
+    private CreateUserUserCase userCase;
 
-  @MockBean
-  private UserDataGateway userDataGateway;
+    @MockBean
+    private UserDataGateway userDataGateway;
 
-  @MockBean
-  private UserFactory userFactory;
+    @MockBean
+    private UserFactory userFactory;
 
-  @MockBean
-  private UserValidator userValidator;
+    @MockBean
+    private UserValidator userValidator;
 
-  @MockBean
-  private PasswordEncoder passwordEncoder;
+    @MockBean
+    private PasswordEncoder passwordEncoder;
 
-  @Test
-  void shouldCreateUser() {
-    String mockId = "fl3eifafda";
-    String encodedPassword = "fadfaçljnvbaçvdaçfkda";
+    @Test
+    void shouldCreateUser() {
+        String mockId = "fl3eifafda";
+        String encodedPassword = "fadfaçljnvbaçvdaçfkda";
 
-    CreateUserUserCaseRequest request = CreateUserUserCaseRequest.builder()
-        .name("Jonh Snow")
-        .email("jonh.snow@gmail.com")
-        .password("123456")
-        .role(UserRole.ADMIN)
-        .build();
+        CreateUserUserCaseRequest request = CreateUserUserCaseRequest.builder()
+                .name("Jonh Snow")
+                .email("jonh.snow@gmail.com")
+                .password("123456")
+                .role(UserRole.ADMIN)
+                .build();
 
-    SaveUserDataRequest expectedSavedData = SaveUserDataRequest.builder()
-        .name(request.getName())
-        .email(request.getEmail())
-        .password(encodedPassword)
-        .role(request.getRole())
-        .build();
+        SaveUserDataRequest expectedSavedData = SaveUserDataRequest.builder()
+                .name(request.getName())
+                .email(request.getEmail())
+                .password(encodedPassword)
+                .role(request.getRole())
+                .build();
 
-    UserDataResponse mockDataGatewayResponse = UserDataResponse.builder()
-        .id(mockId)
-        .name(request.getName())
-        .email(request.getEmail())
-        .password(encodedPassword)
-        .role(request.getRole())
-        .build();
+        UserDataResponse mockDataGatewayResponse = UserDataResponse.builder()
+                .id(mockId)
+                .name(request.getName())
+                .email(request.getEmail())
+                .password(encodedPassword)
+                .role(request.getRole())
+                .build();
 
-    CreateUserUserCaseResponse expectedResponse = CreateUserUserCaseResponse.builder()
-        .id(mockId)
-        .name(request.getName())
-        .email(request.getEmail())
-        .role(request.getRole())
-        .build();
+        CreateUserUserCaseResponse expectedResponse = CreateUserUserCaseResponse.builder()
+                .id(mockId)
+                .name(request.getName())
+                .email(request.getEmail())
+                .role(request.getRole())
+                .build();
 
-    when(passwordEncoder.encode(request.getPassword())).thenReturn(encodedPassword);
+        when(passwordEncoder.encode(request.getPassword())).thenReturn(encodedPassword);
 
-    ArgumentCaptor<SaveUserDataRequest> dataGatewayRequestCaptor = ArgumentCaptor
-        .forClass(SaveUserDataRequest.class);
-    when(userDataGateway.save(dataGatewayRequestCaptor.capture())).thenReturn(mockDataGatewayResponse);
+        ArgumentCaptor<SaveUserDataRequest> dataGatewayRequestCaptor = ArgumentCaptor
+                .forClass(SaveUserDataRequest.class);
+        when(userDataGateway.save(dataGatewayRequestCaptor.capture())).thenReturn(mockDataGatewayResponse);
 
-    CreateUserUserCaseResponse response = userCase.run(request);
+        CreateUserUserCaseResponse response = userCase.run(request);
 
-    assertEquals(expectedSavedData, dataGatewayRequestCaptor.getValue());
-    assertEquals(expectedResponse, response);
-  }
+        assertEquals(expectedSavedData, dataGatewayRequestCaptor.getValue());
+        assertEquals(expectedResponse, response);
+    }
 
-  @Test
-  void shouldThrowValidationExceptionWhenDataIsInvalid() {
+    @Test
+    void shouldThrowValidationExceptionWhenDataIsInvalid() {
 
-    CreateUserUserCaseRequest request = CreateUserUserCaseRequest.builder()
-        .name("")
-        .email("jonh.snow@gmail.com")
-        .password("123456")
-        .role(UserRole.ADMIN)
-        .build();
+        CreateUserUserCaseRequest request = CreateUserUserCaseRequest.builder()
+                .name("")
+                .email("jonh.snow@gmail.com")
+                .password("123456")
+                .role(UserRole.ADMIN)
+                .build();
 
-    User user = CommonUser.builder()
-        .name(request.getName())
-        .email(request.getEmail())
-        .password(request.getPassword())
-        .role(request.getRole())
-        .build();
+        User user = CommonUser.builder()
+                .name(request.getName())
+                .email(request.getEmail())
+                .password(request.getPassword())
+                .role(request.getRole())
+                .build();
 
-    when(userFactory.create(null, request.getName(), request.getEmail(), request.getPassword(), request.getRole()))
-        .thenReturn(user);
+        when(userFactory.create(null, request.getName(), request.getEmail(), request.getPassword(), request.getRole()))
+                .thenReturn(user);
 
-    List<ConstraintViolation> violations = new ArrayList<>();
-    violations.add(new ConstraintViolation("name", "Name is empty"));
+        List<ConstraintViolation> violations = new ArrayList<>();
+        violations.add(new ConstraintViolation("name", "Name is empty"));
 
-    when(userValidator.validate(user)).thenReturn(violations);
+        when(userValidator.validate(user)).thenReturn(violations);
 
-    assertThrows(ValidationException.class, () -> userCase.run(request));
-  }
+        assertThrows(ValidationException.class, () -> userCase.run(request));
+    }
 }
