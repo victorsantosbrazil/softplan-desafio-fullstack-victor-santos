@@ -13,4 +13,6 @@ public interface UserDataGateway {
   public Page<UserDataResponse> findAll(Pageable pageable);
 
   public Optional<UserDataResponse> findById(String id);
+
+  public void delete(String id);
 }

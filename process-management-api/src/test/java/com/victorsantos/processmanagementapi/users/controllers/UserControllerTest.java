@@ -1,6 +1,7 @@
 package com.victorsantos.processmanagementapi.users.controllers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import com.victorsantos.processmanagementapi.users.usercases.admin.createuser.CreateUserUserCase;
 import com.victorsantos.processmanagementapi.users.usercases.admin.createuser.CreateUserUserCaseRequest;
 import com.victorsantos.processmanagementapi.users.usercases.admin.createuser.CreateUserUserCaseResponse;
+import com.victorsantos.processmanagementapi.users.usercases.admin.deleteuser.DeleteUserUserCase;
 import com.victorsantos.processmanagementapi.users.usercases.admin.getuser.GetUserUserCase;
 import com.victorsantos.processmanagementapi.users.usercases.admin.getuser.GetUserUserCaseResponse;
 import com.victorsantos.processmanagementapi.users.usercases.admin.getusers.GetUsersUserCase;
@@ -46,6 +48,9 @@ class UserControllerTest {
 
   @MockBean
   private UpdateUserUserCase updateUserUserCase;
+
+  @MockBean
+  private DeleteUserUserCase deleteUserUserCase;
 
   @Test
   void createUser() {
@@ -154,5 +159,14 @@ class UserControllerTest {
     assertEquals(id, userCaseRequestCaptor.getValue().getId());
     assertEquals(expectedResponse, response);
 
+  }
+
+  @Test
+  void testDeleteUser() {
+    String id = "fdaçkjfdçkaf";
+
+    userController.deleteUser(id);
+
+    verify(deleteUserUserCase).run(id);
   }
 }

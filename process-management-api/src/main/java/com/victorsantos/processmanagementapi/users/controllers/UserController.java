@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.victorsantos.processmanagementapi.users.usercases.admin.createuser.CreateUserUserCase;
 import com.victorsantos.processmanagementapi.users.usercases.admin.createuser.CreateUserUserCaseRequest;
 import com.victorsantos.processmanagementapi.users.usercases.admin.createuser.CreateUserUserCaseResponse;
+import com.victorsantos.processmanagementapi.users.usercases.admin.deleteuser.DeleteUserUserCase;
 import com.victorsantos.processmanagementapi.users.usercases.admin.getuser.GetUserUserCase;
 import com.victorsantos.processmanagementapi.users.usercases.admin.getuser.GetUserUserCaseResponse;
 import com.victorsantos.processmanagementapi.users.usercases.admin.getusers.GetUsersUserCase;
@@ -40,6 +42,9 @@ public class UserController {
   @Autowired
   private UpdateUserUserCase updateUserUserCase;
 
+  @Autowired
+  private DeleteUserUserCase deleteUserUserCase;
+
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public CreateUserUserCaseResponse createUser(@RequestBody CreateUserUserCaseRequest request) {
@@ -62,6 +67,12 @@ public class UserController {
       @RequestBody UpdateUserUserCaseRequest request) {
     request.setId(id);
     return updateUserUserCase.run(request);
+  }
+
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void deleteUser(@PathVariable("id") String id) {
+    deleteUserUserCase.run(id);
   }
 
 }

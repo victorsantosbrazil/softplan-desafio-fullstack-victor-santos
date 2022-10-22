@@ -1,6 +1,7 @@
 package com.victorsantos.processmanagementapi.users.data;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -228,5 +229,14 @@ class UserJpaTest {
 
     assertEquals(expectedUserDataResponse, userDataResponse);
 
+  }
+
+  @Test
+  void whenDeleteShouldDeleteRecord() {
+    UUID id = UUID.randomUUID();
+
+    userJpa.delete(id.toString());
+
+    verify(userJpaRepository).deleteById(id);
   }
 }

@@ -59,4 +59,10 @@ public class UserJpa implements UserDataGateway {
     return userJpaRepository.findById(UUID.fromString(id)).map(this::mapToUserDataResponse);
   }
 
+  @Override
+  public void delete(String id) {
+    userJpaRepository.deleteById(UUID.fromString(id));
+
+  }
+
 }
