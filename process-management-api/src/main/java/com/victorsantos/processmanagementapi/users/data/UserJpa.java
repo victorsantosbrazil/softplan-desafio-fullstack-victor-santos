@@ -19,7 +19,10 @@ public class UserJpa implements UserDataGateway {
 
   @Override
   public UserDataResponse save(SaveUserDataRequest request) {
+    UUID id = request.getId() != null ? UUID.fromString(request.getId()) : null;
+
     UserDataModel userDataModel = UserDataModel.builder()
+        .id(id)
         .name(request.getName())
         .email(request.getEmail())
         .password(request.getPassword())

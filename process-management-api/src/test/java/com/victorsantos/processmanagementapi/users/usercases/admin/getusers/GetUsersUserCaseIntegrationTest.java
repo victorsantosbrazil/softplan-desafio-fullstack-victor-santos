@@ -1,5 +1,7 @@
 package com.victorsantos.processmanagementapi.users.usercases.admin.getusers;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -33,6 +35,11 @@ class GetUsersUserCaseIntegrationTest {
 
   @Autowired
   private UserJpaRepository userJpaRepository;
+
+  @AfterEach
+  public void setup() {
+    userJpaRepository.deleteAll();
+  }
 
   @Test
   void shouldGetPageOfUserFromAllUsers() throws JsonProcessingException, Exception {

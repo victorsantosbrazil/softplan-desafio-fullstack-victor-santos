@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
@@ -24,6 +25,9 @@ import com.victorsantos.processmanagementapi.users.usercases.admin.getuser.GetUs
 import com.victorsantos.processmanagementapi.users.usercases.admin.getuser.GetUserUserCaseResponse;
 import com.victorsantos.processmanagementapi.users.usercases.admin.getusers.GetUsersUserCase;
 import com.victorsantos.processmanagementapi.users.usercases.admin.getusers.GetUsersUserCaseResponse;
+import com.victorsantos.processmanagementapi.users.usercases.admin.updateuser.UpdateUserUserCase;
+import com.victorsantos.processmanagementapi.users.usercases.admin.updateuser.UpdateUserUserCaseRequest;
+import com.victorsantos.processmanagementapi.users.usercases.admin.updateuser.UpdateUserUserCaseResponse;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = UserController.class)
@@ -39,6 +43,9 @@ class UserControllerTest {
 
   @MockBean
   private GetUserUserCase getUserUserCase;
+
+  @MockBean
+  private UpdateUserUserCase updateUserUserCase;
 
   @Test
   void createUser() {
@@ -118,6 +125,34 @@ class UserControllerTest {
     GetUserUserCaseResponse response = userController.getUser(id);
 
     assertEquals(mockResponse, response);
+
+  }
+
+  @Test
+  void testUpdateUser() {
+    String id = "fçdakfdafsa";
+    UpdateUserUserCaseRequest incomingRequest = UpdateUserUserCaseRequest.builder()
+        .name("Jonh Snow")
+        .email("jonh.snow@gmail.com")
+        .role("ADMIN")
+        .build();
+
+    UpdateUserUserCaseResponse expectedResponse = UpdateUserUserCaseResponse.builder()
+        .id(id)
+        .name(incomingRequest.getName())
+        .email(incomingRequest.getEmail())
+        .role(incomingRequest.getRole())
+        .build();
+
+    ArgumentCaptor<UpdateUserUserCaseRequest> userCaseRequestCaptor = ArgumentCaptor
+        .forClass(UpdateUserUserCaseRequest.class);
+
+    when(updateUserUserCase.run(userCaseRequestCaptor.capture())).thenReturn(expectedResponse);
+
+    UpdateUserUserCaseResponse response = userController.updateUser(id, incomingRequest);
+
+    assertEquals(id, userCaseRequestCaptor.getValue().getId());
+    assertEquals(expectedResponse, response);
 
   }
 }

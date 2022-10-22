@@ -33,15 +33,15 @@ class UserJpaTest {
   private UserJpaRepository userJpaRepository;
 
   @Test
-  void whenSaveThenShouldSaveUserData() {
+  void whenSaveNewThenShouldCreateUserData() {
+    UUID mockId = UUID.randomUUID();
+
     SaveUserDataRequest request = SaveUserDataRequest.builder()
         .name("Jonh Snow")
         .email("jonh.snow@gmail.com")
         .password("123456")
         .role("ADMIN")
         .build();
-
-    UUID mockId = UUID.randomUUID();
 
     UserDataModel mockRepositorySaveResponse = UserDataModel.builder()
         .id(mockId)
@@ -57,8 +57,64 @@ class UserJpaTest {
 
     UserDataResponse response = userJpa.save(request);
 
+    UserDataModel expectedSavedModel = UserDataModel.builder()
+        .name(request.getName())
+        .email(request.getEmail())
+        .password(request.getPassword())
+        .role(request.getRole())
+        .build();
+
+    assertEquals(expectedSavedModel, savedUserDataCaptor.getValue());
+
     UserDataResponse expectedResponse = UserDataResponse.builder()
         .id(mockId.toString())
+        .name(request.getName())
+        .email(request.getEmail())
+        .password(request.getPassword())
+        .role(request.getRole())
+        .build();
+
+    assertEquals(expectedResponse, response);
+  }
+
+  @Test
+  void whenSaveExistingUserThenShouldUpdateUserData() {
+    UUID id = UUID.randomUUID();
+
+    SaveUserDataRequest request = SaveUserDataRequest.builder()
+        .id(id.toString())
+        .name("Jonh Snow")
+        .email("jonh.snow@gmail.com")
+        .password("123456")
+        .role("ADMIN")
+        .build();
+
+    UserDataModel mockRepositorySaveResponse = UserDataModel.builder()
+        .id(id)
+        .name(request.getName())
+        .email(request.getEmail())
+        .password(request.getPassword())
+        .role(request.getRole())
+        .build();
+
+    ArgumentCaptor<UserDataModel> savedUserDataCaptor = ArgumentCaptor.forClass(UserDataModel.class);
+
+    when(userJpaRepository.save(savedUserDataCaptor.capture())).thenReturn(mockRepositorySaveResponse);
+
+    UserDataResponse response = userJpa.save(request);
+
+    UserDataModel expectedSavedModel = UserDataModel.builder()
+        .id(id)
+        .name(request.getName())
+        .email(request.getEmail())
+        .password(request.getPassword())
+        .role(request.getRole())
+        .build();
+
+    assertEquals(expectedSavedModel, savedUserDataCaptor.getValue());
+
+    UserDataResponse expectedResponse = UserDataResponse.builder()
+        .id(id.toString())
         .name(request.getName())
         .email(request.getEmail())
         .password(request.getPassword())

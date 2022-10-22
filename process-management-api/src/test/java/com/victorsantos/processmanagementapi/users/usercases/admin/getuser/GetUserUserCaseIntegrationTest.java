@@ -1,5 +1,6 @@
 package com.victorsantos.processmanagementapi.users.usercases.admin.getuser;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -33,6 +34,11 @@ class GetUserUserCaseIntegrationTest {
   @Autowired
   private UserJpaRepository userJpaRepository;
 
+  @AfterEach
+  public void setup() {
+    userJpaRepository.deleteAll();
+  }
+
   @Test
   void shouldGetUser() throws JsonProcessingException, Exception {
 
@@ -55,7 +61,7 @@ class GetUserUserCaseIntegrationTest {
   }
 
   @Test
-  void shouldReturnErrorResponseWhenUserDoesNotExist() throws JsonProcessingException, Exception {
+  void shouldReturnErrorWhenUserDoesNotExist() throws JsonProcessingException, Exception {
 
     String id = UUID.randomUUID().toString();
 

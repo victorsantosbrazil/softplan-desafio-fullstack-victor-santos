@@ -7,4 +7,6 @@ import com.victorsantos.processmanagementapi.utils.validation.ConstraintViolatio
 
 public interface UserValidator {
   public List<ConstraintViolation> validate(User user);
+
+  public List<ConstraintViolation> validate(User user, List<String> excludedFields);
 }

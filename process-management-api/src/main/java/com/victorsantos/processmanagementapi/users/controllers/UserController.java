@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +20,9 @@ import com.victorsantos.processmanagementapi.users.usercases.admin.getuser.GetUs
 import com.victorsantos.processmanagementapi.users.usercases.admin.getuser.GetUserUserCaseResponse;
 import com.victorsantos.processmanagementapi.users.usercases.admin.getusers.GetUsersUserCase;
 import com.victorsantos.processmanagementapi.users.usercases.admin.getusers.GetUsersUserCaseResponse;
+import com.victorsantos.processmanagementapi.users.usercases.admin.updateuser.UpdateUserUserCase;
+import com.victorsantos.processmanagementapi.users.usercases.admin.updateuser.UpdateUserUserCaseRequest;
+import com.victorsantos.processmanagementapi.users.usercases.admin.updateuser.UpdateUserUserCaseResponse;
 
 @RestController
 @RequestMapping("users")
@@ -32,6 +36,9 @@ public class UserController {
 
   @Autowired
   private GetUserUserCase getUserUserCase;
+
+  @Autowired
+  private UpdateUserUserCase updateUserUserCase;
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
@@ -47,6 +54,14 @@ public class UserController {
   @GetMapping("/{id}")
   public GetUserUserCaseResponse getUser(@PathVariable("id") String id) {
     return getUserUserCase.run(id);
+  }
+
+  @PatchMapping("/{id}")
+  public UpdateUserUserCaseResponse updateUser(
+      @PathVariable("id") String id,
+      @RequestBody UpdateUserUserCaseRequest request) {
+    request.setId(id);
+    return updateUserUserCase.run(request);
   }
 
 }

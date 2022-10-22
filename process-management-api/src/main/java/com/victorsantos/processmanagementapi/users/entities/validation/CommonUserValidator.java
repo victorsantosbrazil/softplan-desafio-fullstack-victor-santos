@@ -2,6 +2,7 @@ package com.victorsantos.processmanagementapi.users.entities.validation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,18 +26,36 @@ public class CommonUserValidator implements UserValidator {
   private UserDataGateway userDataGateway;
 
   @Override
-  public List<ConstraintViolation> validate(User user) {
-    List<ConstraintViolation> nameViolations = validateName(user.getName());
-    List<ConstraintViolation> emailViolations = validateEmail(user.getEmail());
-    List<ConstraintViolation> passwordViolations = validatePassword(user.getPassword());
-    List<ConstraintViolation> roleViolations = validateRole(user.getRole());
-
+  public List<ConstraintViolation> validate(User user, List<String> excludedFields) {
     List<ConstraintViolation> allViolations = new ArrayList<>();
-    allViolations.addAll(nameViolations);
-    allViolations.addAll(emailViolations);
-    allViolations.addAll(passwordViolations);
-    allViolations.addAll(roleViolations);
+
+    if (!excludedFields.contains("name")) {
+      List<ConstraintViolation> nameViolations = validateName(user.getName());
+      allViolations.addAll(nameViolations);
+
+    }
+
+    if (!excludedFields.contains("email")) {
+      List<ConstraintViolation> emailViolations = validateEmail(user.getEmail());
+      allViolations.addAll(emailViolations);
+    }
+
+    if (!excludedFields.contains("password")) {
+      List<ConstraintViolation> passwordViolations = validatePassword(user.getPassword());
+      allViolations.addAll(passwordViolations);
+    }
+
+    if (!excludedFields.contains("role")) {
+      List<ConstraintViolation> roleViolations = validateRole(user.getRole());
+      allViolations.addAll(roleViolations);
+    }
+
     return allViolations;
+  }
+
+  @Override
+  public List<ConstraintViolation> validate(User user) {
+    return validate(user, Collections.emptyList());
   }
 
   private List<ConstraintViolation> validateName(String name) {
@@ -89,7 +108,7 @@ public class CommonUserValidator implements UserValidator {
   private List<ConstraintViolation> validateRole(String role) {
     List<ConstraintViolation> violations = new ArrayList<>();
 
-    if (role == null) {
+    if (role == null || role.isEmpty()) {
       ConstraintViolation violation = new ConstraintViolation("role", "role required");
       violations.add(violation);
       return violations;

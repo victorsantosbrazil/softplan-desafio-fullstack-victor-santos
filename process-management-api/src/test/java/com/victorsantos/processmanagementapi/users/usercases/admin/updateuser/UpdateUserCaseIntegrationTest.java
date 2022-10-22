@@ -1,4 +1,4 @@
-package com.victorsantos.processmanagementapi.users.usercases.admin.createuser;
+package com.victorsantos.processmanagementapi.users.usercases.admin.updateuser;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -6,17 +6,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.UUID;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -29,7 +29,7 @@ import com.victorsantos.processmanagementapi.users.data.repositories.models.User
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(initializers = { PostgreSQLContainerInitializer.class })
 @AutoConfigureMockMvc
-class CreateUserCaseIntegrationTest {
+class UpdateUserCaseIntegrationTest {
   @Autowired
   private MockMvc mockMvc;
 
@@ -39,58 +39,93 @@ class CreateUserCaseIntegrationTest {
   @Autowired
   private UserJpaRepository userJpaRepository;
 
-  @MockBean
-  private PasswordEncoder passwordEncoder;
-
   @AfterEach
   public void setup() {
     userJpaRepository.deleteAll();
   }
 
   @Test
-  void shouldCreateUser() throws JsonProcessingException, Exception {
-    CreateUserUserCaseRequest request = CreateUserUserCaseRequest.builder()
+  void shouldUpdateUser() throws JsonProcessingException, Exception {
+    UserDataModel currentUserDataModel = UserDataModel.builder()
         .name("Jonh Snow")
         .email("jonh.snow@gmail.com")
-        .password("123456")
+        .password("çlkfjdadfdassfd")
         .role("ADMIN")
         .build();
 
-    String mockEncodedPassword = "façfakdfdafd";
-    when(passwordEncoder.encode(request.getPassword())).thenReturn(mockEncodedPassword);
+    currentUserDataModel = userJpaRepository.save(currentUserDataModel);
+
+    String id = currentUserDataModel.getId().toString();
+
+    UpdateUserUserCaseRequest request = UpdateUserUserCaseRequest.builder()
+        .name("Jonh das Neves")
+        .email("joao.neves@gmail.com")
+        .role("PROCESS_SCREENER")
+        .build();
 
     mockMvc.perform(
-        post("/users")
+        patch("/users/" + id)
             .contentType("application/json")
             .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.id").isNotEmpty())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(id))
         .andExpect(jsonPath("$.name").value(request.getName()))
         .andExpect(jsonPath("$.email").value(request.getEmail()))
-        .andExpect(jsonPath("$.role").value(request.getRole().toString()));
+        .andExpect(jsonPath("$.role").value(request.getRole()));
 
-    UserDataModel userData = userJpaRepository.findByEmail(request.getEmail()).get();
+    UserDataModel userData = userJpaRepository.findById(currentUserDataModel.getId()).get();
 
     assertEquals(request.getName(), userData.getName());
     assertEquals(request.getEmail(), userData.getEmail());
-    assertEquals(mockEncodedPassword, userData.getPassword());
+    assertEquals(currentUserDataModel.getPassword(), userData.getPassword());
     assertEquals(request.getRole(), userData.getRole());
 
   }
 
   @Test
-  void whenRequestWithInvalidFieldsThenReturnValidationErrorResponse() throws JsonProcessingException, Exception {
-    final String path = "/users";
+  void whenUserDoesNotExistThenNotFoundException() throws JsonProcessingException, Exception {
 
-    CreateUserUserCaseRequest request = CreateUserUserCaseRequest.builder()
+    String id = UUID.randomUUID().toString();
+
+    UpdateUserUserCaseRequest request = UpdateUserUserCaseRequest.builder()
+        .name("Jonh das Neves")
+        .email("joao.neves@gmail.com")
+        .role("PROCESS_SCREENER")
+        .build();
+
+    mockMvc.perform(
+        patch("/users/" + id)
+            .contentType("application/json")
+            .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.message").value("User not found with id " + id))
+        .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()))
+        .andExpect(jsonPath("$.timestamp").isNotEmpty());
+
+  }
+
+  @Test
+  void whenRequestWithInvalidFieldsThenReturnValidationErrorResponse() throws JsonProcessingException, Exception {
+
+    UserDataModel currentUserDataModel = UserDataModel.builder()
+        .name("Jonh Snow")
+        .email("jonh.snow@gmail.com")
+        .password("çlkfjdadfdassfd")
+        .role("ADMIN")
+        .build();
+
+    currentUserDataModel = userJpaRepository.save(currentUserDataModel);
+
+    String id = currentUserDataModel.getId().toString();
+
+    UpdateUserUserCaseRequest request = UpdateUserUserCaseRequest.builder()
         .name("")
         .email("jonh.snow#gmail.com")
-        .password("123456")
         .role("ADMIN")
         .build();
 
     mockMvc.perform(
-        post(path)
+        patch("/users/" + id)
             .contentType("application/json")
             .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isBadRequest())

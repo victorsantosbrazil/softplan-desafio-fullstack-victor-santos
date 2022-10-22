@@ -1,5 +1,6 @@
 package com.victorsantos.processmanagementapi.users.entities.validation;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -143,6 +144,15 @@ class CommonUserValidatorTest {
   }
 
   @Test
+  void shouldReturnConstraintViolationWhenUserRoleIsEmpty() {
+    User user = CommonUser.builder().role("").build();
+    List<ConstraintViolation> violations = userValidator.validate(user);
+
+    ConstraintViolation violation = new ConstraintViolation("role", "role required");
+    assertTrue(violations.contains(violation));
+  }
+
+  @Test
   void shouldReturnConstraintViolationWhenUserRoleIsInvalid() {
     User user = CommonUser.builder().role("UKNOWN").build();
     List<ConstraintViolation> violations = userValidator.validate(user);
@@ -153,5 +163,46 @@ class CommonUserValidatorTest {
         "role is invalid. Possible roles: " + roles);
 
     assertTrue(violations.contains(violation));
+  }
+
+  @Test
+  void shouldDoNotValidateName() {
+    User user = CommonUser.builder().name("").build();
+    List<ConstraintViolation> violations = userValidator.validate(user, Arrays.asList("name"));
+
+    ConstraintViolation violation = new ConstraintViolation("name", "name required");
+
+    assertFalse(violations.contains(violation));
+  }
+
+  @Test
+  void shouldDoNotValidateEmail() {
+    User user = CommonUser.builder().email("").build();
+    List<ConstraintViolation> violations = userValidator.validate(user, Arrays.asList("email"));
+
+    ConstraintViolation violation = new ConstraintViolation("email", "email required");
+
+    assertFalse(violations.contains(violation));
+  }
+
+  @Test
+  void shouldDoNotValidatePassword() {
+    User user = CommonUser.builder().password("").build();
+    List<ConstraintViolation> violations = userValidator.validate(user, Arrays.asList("password"));
+
+    ConstraintViolation violation = new ConstraintViolation("password", "password required");
+
+    assertFalse(violations.contains(violation));
+  }
+
+  @Test
+  void shouldDoNotValidateRole() {
+    User user = CommonUser.builder().role("").build();
+
+    List<ConstraintViolation> violations = userValidator.validate(user, Arrays.asList("role"));
+
+    ConstraintViolation violation = new ConstraintViolation("role", "role required");
+
+    assertFalse(violations.contains(violation));
   }
 }
