@@ -1,14 +1,14 @@
 import "reflect-metadata";
 import { Provider } from "inversify-react";
 import "./App.css";
-import UsersList from "./users/admin/views/UsersList";
 import container from "./diContainer";
+import AppRouter from "./router/AppRouter";
 
 function App() {
   return (
     <div className="App">
       <Provider container={container}>
-        <UsersList />
+        <AppRouter />
       </Provider>
     </div>
   );
