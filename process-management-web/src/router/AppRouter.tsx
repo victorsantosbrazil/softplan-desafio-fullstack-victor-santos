@@ -3,10 +3,12 @@ import UsersForm from "../users/admin/views/UsersForm";
 import UsersList from "../users/admin/views/UsersList";
 
 const AppRouter = () => {
+  const defaultRoute = "/users/new";
+
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/users" replace />} />
+        <Route path="/" element={<Navigate to={defaultRoute} replace />} />
         <Route element={<UsersList />} path="/users"></Route>
         <Route element={<UsersForm />} path="/users/new"></Route>
       </Routes>

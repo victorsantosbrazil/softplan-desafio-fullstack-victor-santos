@@ -1,6 +1,8 @@
 import BFFClient, { HttpRequestConfig } from "./BFFClient";
 import axios, { AxiosInstance } from "axios";
+import { injectable } from "inversify";
 
+@injectable()
 export default class AxiosBFFClient implements BFFClient {
   private httpClient: AxiosInstance;
 
@@ -12,5 +14,13 @@ export default class AxiosBFFClient implements BFFClient {
 
   get(url: string, config?: HttpRequestConfig): Promise<any> {
     return this.httpClient.get(url, { params: config?.params });
+  }
+
+  post(
+    url: string,
+    body: any,
+    config?: HttpRequestConfig | undefined
+  ): Promise<any> {
+    return this.httpClient.post(url, body, config);
   }
 }

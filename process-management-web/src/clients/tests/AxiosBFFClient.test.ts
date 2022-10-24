@@ -6,6 +6,7 @@ process.env.REACT_APP_BFF_URL = REACT_APP_BFF_URL;
 
 const mockAxiosInstance = {
   get: jest.fn(),
+  post: jest.fn(),
 };
 
 jest.mock("axios", () => {
@@ -41,6 +42,34 @@ describe("BFFClient tests", () => {
     const response = await bffClient.get(url, { params });
 
     expect(mockAxiosInstance.get).toBeCalledWith(url, { params });
+    expect(mockResponse).toBe(response);
+  });
+
+  it("should post", async () => {
+    const url = "/users";
+
+    const mockRequestBody = {
+      msg: "Hi",
+    };
+
+    const mockResponse = {
+      data: {
+        msg: "Hello",
+      },
+    };
+
+    mockAxiosInstance.post.mockResolvedValue(mockResponse);
+
+    const params = {
+      msg: "Hi",
+    };
+
+    const response = await bffClient.post(url, mockRequestBody, { params });
+
+    expect(mockAxiosInstance.post).toBeCalledWith(url, mockRequestBody, {
+      params,
+    });
+
     expect(mockResponse).toBe(response);
   });
 });

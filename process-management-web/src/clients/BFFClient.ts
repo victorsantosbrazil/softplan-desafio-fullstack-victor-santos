@@ -4,4 +4,5 @@ export type HttpRequestConfig = {
 
 export default interface BFFClient {
   get(url: string, config?: HttpRequestConfig): Promise<any>;
+  post(url: string, body: any, config?: HttpRequestConfig): Promise<any>;
 }
