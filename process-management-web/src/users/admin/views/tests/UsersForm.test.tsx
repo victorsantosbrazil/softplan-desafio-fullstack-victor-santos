@@ -3,23 +3,46 @@ import { UserRole } from "../../../../security/UserRole";
 import { toast } from "react-toastify";
 import UsersForm from "../UsersForm";
 import { ValidationException } from "../../../../exceptions/ValidationException";
+import { usercases } from "../../../../diSymbols";
+import { waitComponentBeStable } from "../../../../testUtils";
+import { useParams } from "react-router-dom";
 
 const mockNavigate = jest.fn();
+
 const mockCreateUserCase = {
+  run: jest.fn(),
+};
+
+const mockGetUserUserCase = {
+  run: jest.fn(),
+};
+
+const mockUpdateUserUserCase = {
   run: jest.fn(),
 };
 
 jest.mock("react-router-dom", () => {
   return {
     useNavigate: () => mockNavigate,
+    useParams: jest.fn(() => {
+      return {};
+    }),
   };
 });
-jest.mock("react-router-dom");
+
 jest.mock("react-toastify");
 
 jest.mock("inversify-react", () => {
-  const useInjection = () => {
-    return mockCreateUserCase;
+  const useInjection = (identifier: Symbol) => {
+    switch (identifier) {
+      case usercases.CREATE_USER:
+        return mockCreateUserCase;
+      case usercases.GET_USER:
+        return mockGetUserUserCase;
+      case usercases.UPDATE_USER:
+        return mockUpdateUserUserCase;
+    }
+    throw Error("Dependency not found");
   };
 
   return {
@@ -29,11 +52,12 @@ jest.mock("inversify-react", () => {
 });
 
 describe("UsersForm tests", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it("should renders correctly", () => {
     render(<UsersForm />);
-
-    const header = screen.getByTestId("header");
-    expect(header).toHaveTextContent("New User");
 
     const form = screen.getByTestId("form");
 
@@ -78,14 +102,8 @@ describe("UsersForm tests", () => {
     const roleFormGroup = screen.getByTestId("form-group-role");
     const roleFormLabel = screen.getByTestId("form-label-role");
     const roleFormControl = screen.getByTestId("form-control-role");
-    const roleFormControlAdminOption = screen.getByTestId(
-      "form-control-role-option-admin"
-    );
-    const roleFormControlProcessScreenerOption = screen.getByTestId(
-      "form-control-role-option-process-screener"
-    );
-    const roleFormControlProcessFinisherOption = screen.getByTestId(
-      "form-control-role-option-process-finisher"
+    const roleFormControlOptions = screen.getAllByTestId(
+      "form-control-role-options"
     );
 
     expect(roleFormGroup).toContainElement(roleFormLabel);
@@ -93,13 +111,13 @@ describe("UsersForm tests", () => {
     expect(roleFormGroup).toContainElement(roleFormControl);
     expect(roleFormControl).toHaveAttribute("id", "role-input");
     expect(passwordFormControl).toHaveAttribute("aria-required", "true");
-    expect(roleFormControl).toContainElement(roleFormControlAdminOption);
-    expect(roleFormControl).toContainElement(
-      roleFormControlProcessScreenerOption
-    );
-    expect(roleFormControl).toContainElement(
-      roleFormControlProcessFinisherOption
-    );
+    expect(roleFormControl).toContainElement(roleFormControlOptions[0]);
+    expect(roleFormControl).toContainElement(roleFormControlOptions[1]);
+    expect(roleFormControl).toContainElement(roleFormControlOptions[2]);
+
+    expect(roleFormControlOptions[0]).toHaveTextContent("Admin");
+    expect(roleFormControlOptions[1]).toHaveTextContent("Process Screener");
+    expect(roleFormControlOptions[2]).toHaveTextContent("Process Finisher");
 
     const saveButton = screen.getByTestId("save-button");
     expect(saveButton).toHaveTextContent("Save");
@@ -157,8 +175,9 @@ describe("UsersForm tests", () => {
     await waitFor(() => expect(mockCreateUserCase.run).resolves);
 
     expect(mockCreateUserCase.run).toBeCalledWith(submittedData);
+    expect(mockUpdateUserUserCase.run).not.toBeCalled();
 
-    const expectedMsg = "User registered successfully";
+    const expectedMsg = "User saved successfully";
 
     expect(toast).toBeCalledWith(expectedMsg, {
       style: { background: "#07bc0c", color: "white" },
@@ -228,5 +247,125 @@ describe("UsersForm tests", () => {
     expect(emailFormControl).toHaveClass("is-invalid");
     expect(passwordFormControl).toHaveAttribute("aria-invalid", "true");
     expect(passwordFormControl).toHaveClass("is-invalid");
+  });
+
+  it("when editing should fetch user data and update fields", async () => {
+    const userId = "fadfdafd";
+
+    const mockUser = {
+      id: userId,
+      name: "Jefter Oliveira",
+      email: "jefter@test.com",
+      role: UserRole.PROCESS_FINISHER,
+    };
+
+    const mockUseParams = jest.mocked(useParams);
+    mockUseParams.mockReturnValue({ id: userId });
+
+    mockGetUserUserCase.run.mockResolvedValue(mockUser);
+
+    render(<UsersForm />);
+
+    expect(mockGetUserUserCase.run).toBeCalledWith(userId);
+
+    await waitFor(() => expect(mockGetUserUserCase.run).resolves);
+
+    await waitComponentBeStable();
+
+    const nameFormControl = await screen.findByTestId("form-control-name");
+    const emailFormControl = await screen.findByTestId("form-control-email");
+    const roleFormControlOptions: any = await screen.findAllByTestId(
+      "form-control-role-options"
+    );
+
+    expect(nameFormControl).toHaveAttribute("value", mockUser.name);
+    expect(emailFormControl).toHaveAttribute("value", mockUser.email);
+    expect(roleFormControlOptions[0].selected).toBeFalsy();
+    expect(roleFormControlOptions[1].selected).toBeFalsy();
+    expect(roleFormControlOptions[2].selected).toBeTruthy();
+  });
+
+  it("when editing should hide password input", async () => {
+    const userId = "fadfdafd";
+
+    const mockUser = {
+      id: userId,
+      name: "Jefter Oliveira",
+      email: "jefter@test.com",
+      role: "PROCESS_SCREENER",
+    };
+
+    const mockUseParams = jest.mocked(useParams);
+    mockUseParams.mockReturnValue({ id: userId });
+
+    mockGetUserUserCase.run.mockResolvedValue(mockUser);
+
+    render(<UsersForm />);
+
+    await waitComponentBeStable();
+
+    const passwordGroup = screen.queryByTestId("form-group-password");
+    expect(passwordGroup).not.toBeInTheDocument();
+  });
+
+  it("should update user", async () => {
+    const userId = "lfkdadfdadfda";
+
+    const mockUser = {
+      id: userId,
+      name: "Jefter Oliveira",
+      email: "jefter@test.com",
+      role: UserRole.PROCESS_FINISHER,
+    };
+
+    const mockUseParams = jest.mocked(useParams);
+    mockUseParams.mockReturnValue({ id: userId });
+
+    mockGetUserUserCase.run.mockResolvedValueOnce(mockUser);
+
+    render(<UsersForm />);
+
+    const submittedData = {
+      id: userId,
+      name: "Jefter Silva",
+      email: "jefter.silva@test.com",
+      role: UserRole.ADMIN,
+    };
+
+    const nameFormControl = screen.getByTestId("form-control-name");
+
+    const emailFormControl = screen.getByTestId("form-control-email");
+
+    const roleFormControl = screen.getByTestId("form-control-role");
+
+    fireEvent.change(nameFormControl, {
+      target: { value: submittedData.name },
+    });
+
+    fireEvent.change(emailFormControl, {
+      target: { value: submittedData.email },
+    });
+
+    fireEvent.change(roleFormControl, {
+      target: { value: submittedData.role },
+    });
+
+    const saveButton = screen.getByTestId("save-button");
+
+    fireEvent.click(saveButton);
+
+    await waitFor(() => expect(mockUpdateUserUserCase.run).resolves);
+
+    expect(mockUpdateUserUserCase.run).toBeCalledWith(submittedData);
+    expect(mockCreateUserCase.run).not.toBeCalled();
+
+    const expectedMsg = "User saved successfully";
+
+    expect(toast).toBeCalledWith(expectedMsg, {
+      style: { background: "#07bc0c", color: "white" },
+      theme: "colored",
+    });
+
+    expect(mockNavigate).toBeCalledWith("/users");
   });
 });

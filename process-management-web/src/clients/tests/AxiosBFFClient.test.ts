@@ -7,6 +7,7 @@ process.env.REACT_APP_BFF_URL = REACT_APP_BFF_URL;
 const mockAxiosInstance = {
   get: jest.fn(),
   post: jest.fn(),
+  patch: jest.fn(),
 };
 
 jest.mock("axios", () => {
@@ -87,6 +88,46 @@ describe("BFFClient tests", () => {
     mockAxiosInstance.post.mockRejectedValue(error);
 
     await bffClient.post(url, {});
+
+    expect(bffClientExceptionHandler.handle).toBeCalledWith(error);
+  });
+
+  it("should patch", async () => {
+    const url = "/users";
+
+    const mockRequestBody = {
+      msg: "Hi",
+    };
+
+    const mockResponse = {
+      data: {
+        msg: "Hello",
+      },
+    };
+
+    mockAxiosInstance.patch.mockResolvedValue(mockResponse);
+
+    const params = {
+      reply: true,
+    };
+
+    const response = await bffClient.patch(url, mockRequestBody, { params });
+
+    expect(mockAxiosInstance.patch).toBeCalledWith(url, mockRequestBody, {
+      params,
+    });
+
+    expect(mockResponse).toBe(response);
+  });
+
+  it("when patch error then handle error", async () => {
+    const url = "/users/1";
+
+    const error = new Error("Request failed with status code 400");
+
+    mockAxiosInstance.patch.mockRejectedValue(error);
+
+    await bffClient.patch(url, {});
 
     expect(bffClientExceptionHandler.handle).toBeCalledWith(error);
   });

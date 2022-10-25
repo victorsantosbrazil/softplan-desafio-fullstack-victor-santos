@@ -11,6 +11,7 @@ const AppRouter = () => {
         <Route path="/" element={<Navigate to={defaultRoute} replace />} />
         <Route element={<UsersList />} path="/users"></Route>
         <Route element={<UsersForm />} path="/users/new"></Route>
+        <Route element={<UsersForm />} path="/users/:id"></Route>
       </Routes>
     </BrowserRouter>
   );

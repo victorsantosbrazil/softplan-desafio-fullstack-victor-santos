@@ -104,25 +104,37 @@ describe("UsersList test", () => {
     );
     const tableBody = await screen.findByTestId("users-table-body");
 
+    const tableRowUser1 = await screen.findByTestId("users-table-row-user-1");
     const tableRowUser1Name = await screen.findByTestId(
       "users-table-row-user-1-name"
     );
     const tableRowUser1Role = await screen.findByTestId(
       "users-table-row-user-1-role"
     );
+    const tableRowUser1EditAction = await screen.findByTestId(
+      "users-table-row-user-1-edit-action"
+    );
 
+    const tableRowUser2 = await screen.findByTestId("users-table-row-user-2");
     const tableRowUser2Name = await screen.findByTestId(
       "users-table-row-user-2-name"
     );
     const tableRowUser2Role = await screen.findByTestId(
       "users-table-row-user-2-role"
     );
+    const tableRowUser2EditAction = await screen.findByTestId(
+      "users-table-row-user-2-edit-action"
+    );
 
+    const tableRowUser3 = await screen.findByTestId("users-table-row-user-3");
     const tableRowUser3Name = await screen.findByTestId(
       "users-table-row-user-3-name"
     );
     const tableRowUser3Role = await screen.findByTestId(
       "users-table-row-user-3-role"
+    );
+    const tableRowUser3EditAction = await screen.findByTestId(
+      "users-table-row-user-3-edit-action"
     );
 
     expect(table).toBeInTheDocument();
@@ -131,12 +143,15 @@ describe("UsersList test", () => {
     expect(tableHeader).toContainElement(tableHeaderName);
     expect(tableHeader).toContainElement(tableHeaderRole);
     expect(tableHeader).toContainElement(tableHeaderActions);
-    expect(tableBody).toContainElement(tableRowUser1Name);
-    expect(tableBody).toContainElement(tableRowUser1Role);
-    expect(tableBody).toContainElement(tableRowUser2Name);
-    expect(tableBody).toContainElement(tableRowUser2Role);
-    expect(tableBody).toContainElement(tableRowUser3Name);
-    expect(tableBody).toContainElement(tableRowUser3Role);
+    expect(tableBody).toContainElement(tableRowUser1);
+    expect(tableBody).toContainElement(tableRowUser2);
+    expect(tableBody).toContainElement(tableRowUser3);
+    expect(tableRowUser1).toContainElement(tableRowUser1Name);
+    expect(tableRowUser1).toContainElement(tableRowUser1Role);
+    expect(tableRowUser2).toContainElement(tableRowUser2Name);
+    expect(tableRowUser2).toContainElement(tableRowUser2Role);
+    expect(tableRowUser3).toContainElement(tableRowUser3Name);
+    expect(tableRowUser3).toContainElement(tableRowUser3Role);
   });
 
   it("should renders pagination correctly", async () => {
@@ -387,7 +402,7 @@ describe("UsersList test", () => {
   });
 });
 
-it("should navigate to new route when click on add button", async () => {
+it("should navigate to new user form when click on add button", async () => {
   mockGetUsersUserCase.run.mockResolvedValue(
     new Page<GetUsersUserCaseResponse>(
       [],
@@ -401,4 +416,30 @@ it("should navigate to new route when click on add button", async () => {
   fireEvent.click(addButton);
 
   expect(mockNavigate).toBeCalledWith("/users/new");
+});
+
+it("should navigate to edit user form when click on a edit button", async () => {
+  const editedUserId = "2";
+
+  mockGetUsersUserCase.run.mockResolvedValue(
+    new Page<GetUsersUserCaseResponse>(
+      [
+        new GetUsersUserCaseResponse({
+          id: editedUserId,
+          name: "Jefter Oliveira",
+          role: "PROCESS_SCREENER",
+        }),
+      ],
+      new Pageable({ pageNumber: 0, isFirst: true, isLast: true })
+    )
+  );
+  render(<UsersList />);
+
+  const editButton = await screen.findByTestId(
+    `users-table-row-user-${editedUserId}-edit-action`
+  );
+
+  fireEvent.click(editButton);
+
+  expect(mockNavigate).toBeCalledWith(`/users/${editedUserId}`);
 });

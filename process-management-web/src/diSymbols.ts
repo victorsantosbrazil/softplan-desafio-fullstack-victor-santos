@@ -4,6 +4,8 @@ export const clients = {
 };
 
 export const usercases = {
+  CREATE_USER: Symbol.for("users.admin.usercases.createusers"),
+  GET_USER: Symbol.for("users.admin.usercases.getuser"),
   GET_USERS: Symbol.for("users.admin.usercases.getusers"),
-  CREATE_USERS: Symbol.for("users.admin.usercases.createusers"),
+  UPDATE_USER: Symbol.for("users.admin.usercases.updateuser"),
 };

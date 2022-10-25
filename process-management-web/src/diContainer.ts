@@ -9,6 +9,8 @@ import {
 import BFFClient from "./clients/BFFClient";
 import AxiosBFFClientExceptionHandler from "./clients/AxiosBFFClientExceptionHandler";
 import BFFClientExceptionHandler from "./clients/BFFClientExceptionHandler";
+import GetUserUserCaseImpl from "./users/admin/usercases/get-user/GetUserUserCaseImpl";
+import UpdateUserUserCaseImpl from "./users/admin/usercases/update-user/UpdateUserUserCaseImpl";
 
 const container = new Container();
 
@@ -23,9 +25,14 @@ container
   .to(AxiosBFFClient);
 
 container.bind(injectionSymbols.usercases.GET_USERS).to(GetUsersUserCaseImpl);
+container.bind(injectionSymbols.usercases.GET_USER).to(GetUserUserCaseImpl);
 
 container
-  .bind(injectionSymbols.usercases.CREATE_USERS)
+  .bind(injectionSymbols.usercases.CREATE_USER)
   .to(CreateUserUserCaseImpl);
+
+container
+  .bind(injectionSymbols.usercases.UPDATE_USER)
+  .to(UpdateUserUserCaseImpl);
 
 export default container;
