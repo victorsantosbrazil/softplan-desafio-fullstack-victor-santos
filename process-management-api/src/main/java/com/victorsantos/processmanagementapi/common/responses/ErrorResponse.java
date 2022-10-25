@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class ErrorResponse {
   private LocalDateTime timestamp;
   private Integer status;
+  private ErrorType error;
   private String message;
   private String path;
 }

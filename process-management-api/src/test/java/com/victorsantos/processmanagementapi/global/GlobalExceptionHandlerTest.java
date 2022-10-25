@@ -17,6 +17,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.victorsantos.processmanagementapi.common.responses.ErrorResponse;
+import com.victorsantos.processmanagementapi.common.responses.ErrorType;
 import com.victorsantos.processmanagementapi.common.responses.ValidationErrorResponse;
 import com.victorsantos.processmanagementapi.exceptions.NotFoundException;
 import com.victorsantos.processmanagementapi.exceptions.ValidationException;
@@ -43,8 +44,10 @@ public class GlobalExceptionHandlerTest {
 
     ValidationErrorResponse responseBody = response.getBody();
 
-    ValidationErrorResponse expectedBody = new ValidationErrorResponse(LocalDateTime.now(),
+    ValidationErrorResponse expectedBody = new ValidationErrorResponse(
+        LocalDateTime.now(),
         HttpStatus.BAD_REQUEST.value(),
+        ErrorType.VALIDATION,
         exception.getMessage(),
         request.getServletPath(),
         violations);
@@ -72,6 +75,7 @@ public class GlobalExceptionHandlerTest {
 
     ErrorResponse expectedBody = new ErrorResponse(LocalDateTime.now(),
         HttpStatus.NOT_FOUND.value(),
+        ErrorType.NOT_FOUND,
         exception.getMessage(),
         request.getServletPath());
 

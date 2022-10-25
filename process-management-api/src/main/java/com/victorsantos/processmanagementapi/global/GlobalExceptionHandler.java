@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.victorsantos.processmanagementapi.common.responses.ErrorResponse;
+import com.victorsantos.processmanagementapi.common.responses.ErrorType;
 import com.victorsantos.processmanagementapi.common.responses.ValidationErrorResponse;
 import com.victorsantos.processmanagementapi.exceptions.NotFoundException;
 import com.victorsantos.processmanagementapi.exceptions.ValidationException;
@@ -26,6 +27,7 @@ public class GlobalExceptionHandler {
     ValidationErrorResponse response = new ValidationErrorResponse(
         LocalDateTime.now(),
         httpStatus.value(),
+        ErrorType.VALIDATION,
         e.getMessage(),
         request.getServletPath(),
         e.getErrors());
@@ -41,6 +43,7 @@ public class GlobalExceptionHandler {
     ErrorResponse response = new ErrorResponse(
         LocalDateTime.now(),
         httpStatus.value(),
+        ErrorType.NOT_FOUND,
         e.getMessage(),
         request.getServletPath());
 

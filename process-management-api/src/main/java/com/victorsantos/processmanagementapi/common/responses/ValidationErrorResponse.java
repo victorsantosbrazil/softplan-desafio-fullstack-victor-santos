@@ -15,9 +15,9 @@ import lombok.NoArgsConstructor;
 public class ValidationErrorResponse extends ErrorResponse {
   List<ConstraintViolation> violations;
 
-  public ValidationErrorResponse(LocalDateTime timestamp, Integer status, String message, String path,
+  public ValidationErrorResponse(LocalDateTime timestamp, Integer status, ErrorType error, String message, String path,
       List<ConstraintViolation> violations) {
-    super(timestamp, status, message, path);
+    super(timestamp, status, error, message, path);
     this.violations = violations;
   }
 

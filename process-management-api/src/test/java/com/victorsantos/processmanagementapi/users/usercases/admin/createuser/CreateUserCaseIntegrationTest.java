@@ -21,6 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.victorsantos.processmanagementapi.common.responses.ErrorType;
 import com.victorsantos.processmanagementapi.initializers.PostgreSQLContainerInitializer;
 import com.victorsantos.processmanagementapi.users.data.repositories.UserJpaRepository;
 import com.victorsantos.processmanagementapi.users.data.repositories.models.UserDataModel;
@@ -96,6 +97,7 @@ class CreateUserCaseIntegrationTest {
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.timestamp").isNotEmpty())
         .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
+        .andExpect(jsonPath("$.error").value(ErrorType.VALIDATION.toString()))
         .andExpect(jsonPath("$.message").value("Validation error"))
         .andExpect(jsonPath("$.violations[0].propertyPath").value("name"))
         .andExpect(jsonPath("$.violations[0].errorMessage").value("name required"))
