@@ -1,12 +1,17 @@
+import { useCallback, useState } from "react";
 import { useInjection } from "inversify-react";
-import { useState } from "react";
+import { toast } from "react-toastify";
 import { Container, Form, Row, Col, Button } from "react-bootstrap";
 import { usercases } from "../../../diSymbols";
 import { UserRole } from "../../../security/UserRole";
 import CreateUserUserCase from "../usercases/create-user/CreateUserUserCase";
 import { CreateUserUserCaseRequest } from "../usercases/create-user/models";
+import { ValidationException } from "../../../exceptions/ValidationException";
+import { useNavigate } from "react-router-dom";
 
 const UsersForm = () => {
+  const navigate = useNavigate();
+
   const createUserUserCase = useInjection<CreateUserUserCase>(
     usercases.CREATE_USERS
   );
@@ -18,17 +23,68 @@ const UsersForm = () => {
     role: UserRole.ADMIN,
   });
 
-  const handleChange = async (key: string, evt: { target: { value: any } }) => {
-    setFormData({ ...formData, [key]: evt.target.value });
-  };
+  const [formErrors, setFormErrors] = useState(new Map<string, string[]>());
 
-  const handleSubmit = async () => {
-    const createUserRequest = new CreateUserUserCaseRequest({ ...formData });
-    await createUserUserCase.run(createUserRequest);
-  };
+  const handleChange = useCallback(
+    async (key: string, evt: { target: { value: any } }) => {
+      setFormData({ ...formData, [key]: evt.target.value });
+    },
+    [formData]
+  );
+
+  const toastSuccess = useCallback((msg: string) => {
+    toast(msg, {
+      style: { background: "#07bc0c", color: "white" },
+      theme: "colored",
+    });
+  }, []);
+
+  const handleSubmit = useCallback(async () => {
+    try {
+      const createUserRequest = new CreateUserUserCaseRequest({ ...formData });
+      await createUserUserCase.run(createUserRequest);
+      navigate("/users");
+      toastSuccess("User registered successfully");
+    } catch (error) {
+      if (error instanceof ValidationException) {
+        setFormErrors(error.violations);
+      }
+    }
+  }, [createUserUserCase, formData, toastSuccess, navigate]);
+
+  const handleCancel = useCallback(() => {
+    navigate("/users");
+  }, [navigate]);
+
+  const isInvalidInput = useCallback(
+    (propertyPath: string): boolean => {
+      return !!formErrors.get(propertyPath);
+    },
+    [formErrors]
+  );
+
+  const invalidMsgs = useCallback(
+    (propertyPath: string) => {
+      const errorMsgs = formErrors.get(propertyPath) || [];
+
+      return errorMsgs.map((msg, idx) => {
+        const testId = `form-control-error-${propertyPath.replace(
+          ".",
+          "-"
+        )}-${idx}`;
+
+        return (
+          <Form.Text className="text-danger" key={idx} data-testid={testId}>
+            {msg}
+          </Form.Text>
+        );
+      });
+    },
+    [formErrors]
+  );
 
   return (
-    <Container as="section">
+    <Container className="my-2" as="section">
       <header
         className="d-flex justify-content-start mb-3"
         data-testid="header"
@@ -50,8 +106,11 @@ const UsersForm = () => {
               data-testid="form-control-name"
               value={formData.name}
               onChange={handleChange.bind(this, "name")}
+              isInvalid={isInvalidInput("name")}
               aria-required
+              aria-invalid={isInvalidInput("name")}
             />
+            {invalidMsgs("name")}
           </Col>
           <Col
             className="d-flex flex-column align-items-start mb-2"
@@ -66,9 +125,12 @@ const UsersForm = () => {
               type="email"
               value={formData.email}
               onChange={handleChange.bind(this, "email")}
+              isInvalid={isInvalidInput("email")}
               data-testid="form-control-email"
               aria-required
+              aria-invalid={isInvalidInput("email")}
             />
+            {invalidMsgs("email")}
           </Col>
           <Col
             className="d-flex flex-column align-items-start mb-2"
@@ -87,9 +149,12 @@ const UsersForm = () => {
               type="password"
               value={formData.password}
               onChange={handleChange.bind(this, "password")}
+              isInvalid={isInvalidInput("password")}
               data-testid="form-control-password"
               aria-required
+              aria-invalid={isInvalidInput("password")}
             />
+            {invalidMsgs("password")}
           </Col>
           <Col
             className="d-flex flex-column align-items-start mb-2"
@@ -130,6 +195,14 @@ const UsersForm = () => {
           <Col className="d-flex align-items-start">
             <Button onClick={handleSubmit} data-testid="save-button">
               Save
+            </Button>
+            <Button
+              className="ms-2"
+              variant="secondary"
+              onClick={handleCancel}
+              data-testid="cancel-button"
+            >
+              Cancel
             </Button>
           </Col>
         </Row>

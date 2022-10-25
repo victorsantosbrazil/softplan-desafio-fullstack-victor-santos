@@ -1,5 +1,6 @@
 export const clients = {
   BFF_CLIENT: Symbol.for("clients.bff"),
+  BFF_CLIENT_EXCEPTION_HANDLER: Symbol.for("clients.bffexceptionhandler"),
 };
 
 export const usercases = {

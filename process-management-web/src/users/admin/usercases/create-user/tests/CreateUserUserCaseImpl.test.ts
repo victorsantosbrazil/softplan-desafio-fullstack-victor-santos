@@ -1,4 +1,5 @@
 import BFFClient from "../../../../../clients/BFFClient";
+import { ValidationException } from "../../../../../exceptions/ValidationException";
 import { UserRole } from "../../../../../security/UserRole";
 import CreateUserUserCaseImpl from "../CreateUserUserCaseImpl";
 import { CreateUserUserCaseRequest } from "../models";
