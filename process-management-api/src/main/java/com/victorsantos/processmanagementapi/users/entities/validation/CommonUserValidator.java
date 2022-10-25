@@ -36,7 +36,7 @@ public class CommonUserValidator implements UserValidator {
     }
 
     if (!excludedFields.contains("email")) {
-      List<ConstraintViolation> emailViolations = validateEmail(user.getEmail());
+      List<ConstraintViolation> emailViolations = validateEmail(user.getId(), user.getEmail());
       allViolations.addAll(emailViolations);
     }
 
@@ -69,7 +69,7 @@ public class CommonUserValidator implements UserValidator {
     return violations;
   }
 
-  private List<ConstraintViolation> validateEmail(String email) {
+  private List<ConstraintViolation> validateEmail(String userId, String email) {
     List<ConstraintViolation> violations = new ArrayList<>();
 
     if (email == null || email.isEmpty()) {
@@ -86,7 +86,7 @@ public class CommonUserValidator implements UserValidator {
     }
 
     UserDataResponse userDataResponse = userDataGateway.findByEmail(email).orElse(null);
-    if (userDataResponse != null) {
+    if (userDataResponse != null && !userDataResponse.getId().equals(userId)) {
       ConstraintViolation violation = new ConstraintViolation("email", "email is already in use");
       violations.add(violation);
     }

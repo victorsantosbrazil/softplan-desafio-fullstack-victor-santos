@@ -102,18 +102,33 @@ class CommonUserValidatorTest {
   }
 
   @Test
-  void shouldReturnConstraintViolationWhenUserEmailIsAlreadyInUse() {
-    User user = CommonUser.builder().email("test@test.com").build();
+  void shouldReturnConstraintViolationWhenUserEmailIsAlreadyInUseByOtherUser() {
+    User user = CommonUser.builder().id("1").email("test@test.com").build();
 
     when(emailValidator.validate(user.getEmail())).thenReturn(true);
 
-    UserDataResponse mockUserDataResponse = UserDataResponse.builder().id("fafdafdali3fa").build();
+    UserDataResponse mockUserDataResponse = UserDataResponse.builder().id("2").build();
     when(userDataGateway.findByEmail(user.getEmail())).thenReturn(Optional.of(mockUserDataResponse));
 
     List<ConstraintViolation> violations = userValidator.validate(user);
 
     ConstraintViolation violation = new ConstraintViolation("email", "email is already in use");
     assertTrue(violations.contains(violation));
+  }
+
+  @Test
+  void shouldNotReturnConstraintViolationWhenUserEmailBelongsToTheSameUser() {
+    User user = CommonUser.builder().id("1").email("test@test.com").build();
+
+    when(emailValidator.validate(user.getEmail())).thenReturn(true);
+
+    UserDataResponse mockUserDataResponse = UserDataResponse.builder().id("1").build();
+    when(userDataGateway.findByEmail(user.getEmail())).thenReturn(Optional.of(mockUserDataResponse));
+
+    List<ConstraintViolation> violations = userValidator.validate(user);
+
+    ConstraintViolation violation = new ConstraintViolation("email", "email is already in use");
+    assertFalse(violations.contains(violation));
   }
 
   @Test
