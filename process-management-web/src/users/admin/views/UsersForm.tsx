@@ -87,7 +87,7 @@ const UsersForm = () => {
         setFormErrors(error.violations);
       }
     }
-  }, [toastSuccess, navigate, createUser]);
+  }, [toastSuccess, isEditing, navigate, createUser, updateUser]);
 
   const handleCancel = useCallback(() => {
     navigate("/users");

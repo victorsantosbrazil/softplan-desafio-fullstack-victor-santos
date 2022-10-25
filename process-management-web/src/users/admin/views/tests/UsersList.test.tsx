@@ -148,10 +148,13 @@ describe("UsersList test", () => {
     expect(tableBody).toContainElement(tableRowUser3);
     expect(tableRowUser1).toContainElement(tableRowUser1Name);
     expect(tableRowUser1).toContainElement(tableRowUser1Role);
+    expect(tableRowUser1).toContainElement(tableRowUser1EditAction);
     expect(tableRowUser2).toContainElement(tableRowUser2Name);
     expect(tableRowUser2).toContainElement(tableRowUser2Role);
+    expect(tableRowUser2).toContainElement(tableRowUser2EditAction);
     expect(tableRowUser3).toContainElement(tableRowUser3Name);
     expect(tableRowUser3).toContainElement(tableRowUser3Role);
+    expect(tableRowUser3).toContainElement(tableRowUser3EditAction);
   });
 
   it("should renders pagination correctly", async () => {
