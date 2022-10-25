@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useInjection } from "inversify-react";
 import { toast } from "react-toastify";
 import { Container, Form, Row, Col, Button } from "react-bootstrap";
@@ -7,14 +7,21 @@ import { UserRole } from "../../../security/UserRole";
 import CreateUserUserCase from "../usercases/create-user/CreateUserUserCase";
 import { CreateUserUserCaseRequest } from "../usercases/create-user/models";
 import { ValidationException } from "../../../exceptions/ValidationException";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import GetUserUserCase from "../usercases/get-user/GetUserUserCase";
 
 const UsersForm = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const isEditing = !!id;
 
   const createUserUserCase = useInjection<CreateUserUserCase>(
-    usercases.CREATE_USERS
+    usercases.CREATE_USER
   );
+
+  const getUserUserCase = useInjection<GetUserUserCase>(usercases.GET_USER);
+
+  const updateUserUserCase = useInjection(usercases.UPDATE_USER) as any;
 
   const [formData, setFormData] = useState({
     name: "",
@@ -25,12 +32,39 @@ const UsersForm = () => {
 
   const [formErrors, setFormErrors] = useState(new Map<string, string[]>());
 
+  const fetchUser = useCallback(
+    async (id: string) => {
+      const userData = (await getUserUserCase.run(id)) as any;
+      setFormData({
+        name: userData.name,
+        email: userData.email,
+        role: userData.role,
+        password: "",
+      });
+    },
+    [getUserUserCase]
+  );
+
   const handleChange = useCallback(
     async (key: string, evt: { target: { value: any } }) => {
       setFormData({ ...formData, [key]: evt.target.value });
     },
     [formData]
   );
+
+  const createUser = useCallback(() => {
+    const createUserRequest = new CreateUserUserCaseRequest({ ...formData });
+    return createUserUserCase.run(createUserRequest);
+  }, [createUserUserCase, formData]);
+
+  const updateUser = useCallback(() => {
+    return updateUserUserCase.run({
+      id,
+      name: formData.name,
+      email: formData.email,
+      role: formData.role,
+    });
+  }, [updateUserUserCase, id, formData]);
 
   const toastSuccess = useCallback((msg: string) => {
     toast(msg, {
@@ -41,16 +75,19 @@ const UsersForm = () => {
 
   const handleSubmit = useCallback(async () => {
     try {
-      const createUserRequest = new CreateUserUserCaseRequest({ ...formData });
-      await createUserUserCase.run(createUserRequest);
+      if (isEditing) {
+        await updateUser();
+      } else {
+        await createUser();
+      }
       navigate("/users");
-      toastSuccess("User registered successfully");
+      toastSuccess("User saved successfully");
     } catch (error) {
       if (error instanceof ValidationException) {
         setFormErrors(error.violations);
       }
     }
-  }, [createUserUserCase, formData, toastSuccess, navigate]);
+  }, [toastSuccess, navigate, createUser]);
 
   const handleCancel = useCallback(() => {
     navigate("/users");
@@ -83,14 +120,14 @@ const UsersForm = () => {
     [formErrors]
   );
 
+  useEffect(() => {
+    if (id) {
+      fetchUser(id);
+    }
+  }, [id, fetchUser]);
+
   return (
     <Container className="my-2" as="section">
-      <header
-        className="d-flex justify-content-start mb-3"
-        data-testid="header"
-      >
-        <h1 className="fs-2">New User</h1>
-      </header>
       <Form data-testid="form">
         <Row>
           <Col
@@ -132,30 +169,32 @@ const UsersForm = () => {
             />
             {invalidMsgs("email")}
           </Col>
-          <Col
-            className="d-flex flex-column align-items-start mb-2"
-            md={6}
-            sm={12}
-            data-testid="form-group-password"
-          >
-            <Form.Label
-              htmlFor="password-input"
-              data-testid="form-label-password"
+          {!isEditing && (
+            <Col
+              className="d-flex flex-column align-items-start mb-2"
+              md={6}
+              sm={12}
+              data-testid="form-group-password"
             >
-              Password
-            </Form.Label>
-            <Form.Control
-              id="password-input"
-              type="password"
-              value={formData.password}
-              onChange={handleChange.bind(this, "password")}
-              isInvalid={isInvalidInput("password")}
-              data-testid="form-control-password"
-              aria-required
-              aria-invalid={isInvalidInput("password")}
-            />
-            {invalidMsgs("password")}
-          </Col>
+              <Form.Label
+                htmlFor="password-input"
+                data-testid="form-label-password"
+              >
+                Password
+              </Form.Label>
+              <Form.Control
+                id="password-input"
+                type="password"
+                value={formData.password}
+                onChange={handleChange.bind(this, "password")}
+                isInvalid={isInvalidInput("password")}
+                data-testid="form-control-password"
+                aria-required
+                aria-invalid={isInvalidInput("password")}
+              />
+              {invalidMsgs("password")}
+            </Col>
+          )}
           <Col
             className="d-flex flex-column align-items-start mb-2"
             md={6}
@@ -172,21 +211,21 @@ const UsersForm = () => {
             >
               <option
                 value={UserRole.ADMIN}
-                data-testid="form-control-role-option-admin"
+                data-testid="form-control-role-options"
               >
-                ADMIN
+                Admin
               </option>
               <option
                 value={UserRole.PROCESS_SCREENER}
-                data-testid="form-control-role-option-process-screener"
+                data-testid="form-control-role-options"
               >
-                PROCESS SCREENER
+                Process Screener
               </option>
               <option
                 value={UserRole.PROCESS_FINISHER}
-                data-testid="form-control-role-option-process-finisher"
+                data-testid="form-control-role-options"
               >
-                PROCESS FINISHER
+                Process Finisher
               </option>
             </Form.Select>
           </Col>

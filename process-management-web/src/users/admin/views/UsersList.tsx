@@ -7,6 +7,7 @@ import {
   Pagination,
   Spinner,
   Button,
+  ButtonGroup,
 } from "react-bootstrap";
 import { useInjection } from "inversify-react";
 import { usercases } from "../../../diSymbols";
@@ -46,6 +47,13 @@ const UsersList = () => {
     navigate("/users/new");
   }, [navigate]);
 
+  const handleEdit = useCallback(
+    (id: string) => {
+      navigate(`/users/${id}`);
+    },
+    [navigate]
+  );
+
   useEffect(() => {
     fetchData({ pageNumber: 0 });
   }, [fetchData]);
@@ -70,7 +78,11 @@ const UsersList = () => {
           <h1 className="fs-2">Users</h1>
         </Col>
         <Col xs={4} className="d-flex justify-content-end">
-          <Button onClick={handleAdd} data-testid="add-button">
+          <Button
+            variant="success"
+            onClick={handleAdd}
+            data-testid="add-button"
+          >
             Add
           </Button>
         </Col>
@@ -102,6 +114,16 @@ const UsersList = () => {
                 </td>
                 <td data-testid={`users-table-row-user-${userData.id}-role`}>
                   {userData.role}
+                </td>
+                <td>
+                  <ButtonGroup>
+                    <Button
+                      onClick={() => handleEdit(userData.id)}
+                      data-testid={`users-table-row-user-${userData.id}-edit-action`}
+                    >
+                      Edit
+                    </Button>
+                  </ButtonGroup>
                 </td>
               </tr>
             );

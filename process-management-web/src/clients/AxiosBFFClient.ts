@@ -33,4 +33,16 @@ export default class AxiosBFFClient implements BFFClient {
       this._exceptionHandler.handle(err as Error);
     }
   }
+
+  async patch(
+    url: string,
+    body: any,
+    config?: HttpRequestConfig | undefined
+  ): Promise<any> {
+    try {
+      return await this.httpClient.patch(url, body, config);
+    } catch (err) {
+      this._exceptionHandler.handle(err as Error);
+    }
+  }
 }
