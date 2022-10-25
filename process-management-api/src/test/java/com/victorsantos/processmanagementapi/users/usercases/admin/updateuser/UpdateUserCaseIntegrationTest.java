@@ -21,6 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.victorsantos.processmanagementapi.common.responses.ErrorType;
 import com.victorsantos.processmanagementapi.initializers.PostgreSQLContainerInitializer;
 import com.victorsantos.processmanagementapi.users.data.repositories.UserJpaRepository;
 import com.victorsantos.processmanagementapi.users.data.repositories.models.UserDataModel;
@@ -30,112 +31,113 @@ import com.victorsantos.processmanagementapi.users.data.repositories.models.User
 @ContextConfiguration(initializers = { PostgreSQLContainerInitializer.class })
 @AutoConfigureMockMvc
 class UpdateUserCaseIntegrationTest {
-  @Autowired
-  private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-  @Autowired
-  private ObjectMapper objectMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-  @Autowired
-  private UserJpaRepository userJpaRepository;
+    @Autowired
+    private UserJpaRepository userJpaRepository;
 
-  @AfterEach
-  public void setup() {
-    userJpaRepository.deleteAll();
-  }
+    @AfterEach
+    public void setup() {
+        userJpaRepository.deleteAll();
+    }
 
-  @Test
-  void shouldUpdateUser() throws JsonProcessingException, Exception {
-    UserDataModel currentUserDataModel = UserDataModel.builder()
-        .name("Jonh Snow")
-        .email("jonh.snow@gmail.com")
-        .password("çlkfjdadfdassfd")
-        .role("ADMIN")
-        .build();
+    @Test
+    void shouldUpdateUser() throws JsonProcessingException, Exception {
+        UserDataModel currentUserDataModel = UserDataModel.builder()
+                .name("Jonh Snow")
+                .email("jonh.snow@gmail.com")
+                .password("çlkfjdadfdassfd")
+                .role("ADMIN")
+                .build();
 
-    currentUserDataModel = userJpaRepository.save(currentUserDataModel);
+        currentUserDataModel = userJpaRepository.save(currentUserDataModel);
 
-    String id = currentUserDataModel.getId().toString();
+        String id = currentUserDataModel.getId().toString();
 
-    UpdateUserUserCaseRequest request = UpdateUserUserCaseRequest.builder()
-        .name("Jonh das Neves")
-        .email("joao.neves@gmail.com")
-        .role("PROCESS_SCREENER")
-        .build();
+        UpdateUserUserCaseRequest request = UpdateUserUserCaseRequest.builder()
+                .name("Jonh das Neves")
+                .email("joao.neves@gmail.com")
+                .role("PROCESS_SCREENER")
+                .build();
 
-    mockMvc.perform(
-        patch("/users/" + id)
-            .contentType("application/json")
-            .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(id))
-        .andExpect(jsonPath("$.name").value(request.getName()))
-        .andExpect(jsonPath("$.email").value(request.getEmail()))
-        .andExpect(jsonPath("$.role").value(request.getRole()));
+        mockMvc.perform(
+                patch("/users/" + id)
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.name").value(request.getName()))
+                .andExpect(jsonPath("$.email").value(request.getEmail()))
+                .andExpect(jsonPath("$.role").value(request.getRole()));
 
-    UserDataModel userData = userJpaRepository.findById(currentUserDataModel.getId()).get();
+        UserDataModel userData = userJpaRepository.findById(currentUserDataModel.getId()).get();
 
-    assertEquals(request.getName(), userData.getName());
-    assertEquals(request.getEmail(), userData.getEmail());
-    assertEquals(currentUserDataModel.getPassword(), userData.getPassword());
-    assertEquals(request.getRole(), userData.getRole());
+        assertEquals(request.getName(), userData.getName());
+        assertEquals(request.getEmail(), userData.getEmail());
+        assertEquals(currentUserDataModel.getPassword(), userData.getPassword());
+        assertEquals(request.getRole(), userData.getRole());
 
-  }
+    }
 
-  @Test
-  void whenUserDoesNotExistThenNotFoundException() throws JsonProcessingException, Exception {
+    @Test
+    void whenUserDoesNotExistThenNotFoundException() throws JsonProcessingException, Exception {
 
-    String id = UUID.randomUUID().toString();
+        String id = UUID.randomUUID().toString();
 
-    UpdateUserUserCaseRequest request = UpdateUserUserCaseRequest.builder()
-        .name("Jonh das Neves")
-        .email("joao.neves@gmail.com")
-        .role("PROCESS_SCREENER")
-        .build();
+        UpdateUserUserCaseRequest request = UpdateUserUserCaseRequest.builder()
+                .name("Jonh das Neves")
+                .email("joao.neves@gmail.com")
+                .role("PROCESS_SCREENER")
+                .build();
 
-    mockMvc.perform(
-        patch("/users/" + id)
-            .contentType("application/json")
-            .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isNotFound())
-        .andExpect(jsonPath("$.message").value("User not found with id " + id))
-        .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()))
-        .andExpect(jsonPath("$.timestamp").isNotEmpty());
+        mockMvc.perform(
+                patch("/users/" + id)
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("User not found with id " + id))
+                .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()))
+                .andExpect(jsonPath("$.timestamp").isNotEmpty());
 
-  }
+    }
 
-  @Test
-  void whenRequestWithInvalidFieldsThenReturnValidationErrorResponse() throws JsonProcessingException, Exception {
+    @Test
+    void whenRequestWithInvalidFieldsThenReturnValidationErrorResponse() throws JsonProcessingException, Exception {
 
-    UserDataModel currentUserDataModel = UserDataModel.builder()
-        .name("Jonh Snow")
-        .email("jonh.snow@gmail.com")
-        .password("çlkfjdadfdassfd")
-        .role("ADMIN")
-        .build();
+        UserDataModel currentUserDataModel = UserDataModel.builder()
+                .name("Jonh Snow")
+                .email("jonh.snow@gmail.com")
+                .password("çlkfjdadfdassfd")
+                .role("ADMIN")
+                .build();
 
-    currentUserDataModel = userJpaRepository.save(currentUserDataModel);
+        currentUserDataModel = userJpaRepository.save(currentUserDataModel);
 
-    String id = currentUserDataModel.getId().toString();
+        String id = currentUserDataModel.getId().toString();
 
-    UpdateUserUserCaseRequest request = UpdateUserUserCaseRequest.builder()
-        .name("")
-        .email("jonh.snow#gmail.com")
-        .role("ADMIN")
-        .build();
+        UpdateUserUserCaseRequest request = UpdateUserUserCaseRequest.builder()
+                .name("")
+                .email("jonh.snow#gmail.com")
+                .role("ADMIN")
+                .build();
 
-    mockMvc.perform(
-        patch("/users/" + id)
-            .contentType("application/json")
-            .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.timestamp").isNotEmpty())
-        .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
-        .andExpect(jsonPath("$.message").value("Validation error"))
-        .andExpect(jsonPath("$.violations[0].propertyPath").value("name"))
-        .andExpect(jsonPath("$.violations[0].errorMessage").value("name required"))
-        .andExpect(jsonPath("$.violations[1].propertyPath").value("email"))
-        .andExpect(jsonPath("$.violations[1].errorMessage").value("email is invalid"));
+        mockMvc.perform(
+                patch("/users/" + id)
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.timestamp").isNotEmpty())
+                .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(jsonPath("$.error").value(ErrorType.VALIDATION.toString()))
+                .andExpect(jsonPath("$.message").value("Validation error"))
+                .andExpect(jsonPath("$.violations[0].propertyPath").value("name"))
+                .andExpect(jsonPath("$.violations[0].errorMessage").value("name required"))
+                .andExpect(jsonPath("$.violations[1].propertyPath").value("email"))
+                .andExpect(jsonPath("$.violations[1].errorMessage").value("email is invalid"));
 
-  }
+    }
 }
