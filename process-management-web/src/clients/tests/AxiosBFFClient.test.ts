@@ -10,14 +10,20 @@ const mockAxiosInstance = {
 };
 
 jest.mock("axios", () => {
-  return { create: jest.fn(() => mockAxiosInstance) };
+  return {
+    create: jest.fn(() => mockAxiosInstance),
+  };
 });
 
 describe("BFFClient tests", () => {
-  const bffClient = new AxiosBFFClient();
+  const bffClientExceptionHandler = {
+    handle: jest.fn(),
+  };
+
+  const bffClient = new AxiosBFFClient(bffClientExceptionHandler);
 
   it("should create axios instance with baseUrl as BFF url", () => {
-    new AxiosBFFClient();
+    new AxiosBFFClient(bffClientExceptionHandler);
 
     const mockAxios = jest.mocked(axios);
 
@@ -71,5 +77,17 @@ describe("BFFClient tests", () => {
     });
 
     expect(mockResponse).toBe(response);
+  });
+
+  it("when post error then handle error", async () => {
+    const url = "/users";
+
+    const error = new Error("Request failed with status code 400");
+
+    mockAxiosInstance.post.mockRejectedValue(error);
+
+    await bffClient.post(url, {});
+
+    expect(bffClientExceptionHandler.handle).toBeCalledWith(error);
   });
 });

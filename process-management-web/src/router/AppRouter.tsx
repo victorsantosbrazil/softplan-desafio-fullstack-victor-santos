@@ -3,7 +3,7 @@ import UsersForm from "../users/admin/views/UsersForm";
 import UsersList from "../users/admin/views/UsersList";
 
 const AppRouter = () => {
-  const defaultRoute = "/users/new";
+  const defaultRoute = "/users";
 
   return (
     <BrowserRouter>

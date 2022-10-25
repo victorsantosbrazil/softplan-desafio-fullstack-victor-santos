@@ -1,10 +1,21 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { UserRole } from "../../../../security/UserRole";
+import { toast } from "react-toastify";
 import UsersForm from "../UsersForm";
+import { ValidationException } from "../../../../exceptions/ValidationException";
 
+const mockNavigate = jest.fn();
 const mockCreateUserCase = {
   run: jest.fn(),
 };
+
+jest.mock("react-router-dom", () => {
+  return {
+    useNavigate: () => mockNavigate,
+  };
+});
+jest.mock("react-router-dom");
+jest.mock("react-toastify");
 
 jest.mock("inversify-react", () => {
   const useInjection = () => {
@@ -92,9 +103,20 @@ describe("UsersForm tests", () => {
 
     const saveButton = screen.getByTestId("save-button");
     expect(saveButton).toHaveTextContent("Save");
+
+    const cancelButton = screen.getByTestId("cancel-button");
+    expect(cancelButton).toHaveTextContent("Cancel");
   });
 
-  it("should create user after submit form on new route", () => {
+  it("should return to users route when click on cancel button", () => {
+    render(<UsersForm />);
+
+    const cancelButton = screen.getByTestId("cancel-button");
+    fireEvent.click(cancelButton);
+    expect(mockNavigate).toBeCalledWith("/users");
+  });
+
+  it("should create user", async () => {
     render(<UsersForm />);
 
     const submittedData = {
@@ -132,6 +154,79 @@ describe("UsersForm tests", () => {
 
     fireEvent.click(saveButton);
 
+    await waitFor(() => expect(mockCreateUserCase.run).resolves);
+
     expect(mockCreateUserCase.run).toBeCalledWith(submittedData);
+
+    const expectedMsg = "User registered successfully";
+
+    expect(toast).toBeCalledWith(expectedMsg, {
+      style: { background: "#07bc0c", color: "white" },
+      theme: "colored",
+    });
+
+    expect(mockNavigate).toBeCalledWith("/users");
+  });
+
+  it("should show validation errors", async () => {
+    render(<UsersForm />);
+
+    const nameErrors = ["name required"];
+    const emailErrors = ["email required"];
+    const passwordErrors = [
+      "password should have at least 1 number",
+      "password should have at least 1 special character",
+    ];
+
+    const violations = new Map<string, string[]>();
+    violations.set("name", nameErrors);
+    violations.set("email", emailErrors);
+    violations.set("password", passwordErrors);
+
+    const validationException = new ValidationException(
+      "Validation Error",
+      violations
+    );
+    mockCreateUserCase.run.mockRejectedValue(validationException);
+
+    const saveButton = screen.getByTestId("save-button");
+
+    fireEvent.click(saveButton);
+
+    await waitFor(() => expect(mockCreateUserCase.run).resolves);
+
+    const nameControlError = await screen.findByTestId(
+      "form-control-error-name-0"
+    );
+
+    const emailControlError = await screen.findByTestId(
+      "form-control-error-email-0"
+    );
+
+    const passwordControlError1 = await screen.findByTestId(
+      "form-control-error-password-0"
+    );
+
+    const passwordControlError2 = await screen.findByTestId(
+      "form-control-error-password-1"
+    );
+
+    expect(nameControlError).toHaveTextContent(nameErrors[0]);
+    expect(emailControlError).toHaveTextContent(emailErrors[0]);
+    expect(passwordControlError1).toHaveTextContent(passwordErrors[0]);
+    expect(passwordControlError2).toHaveTextContent(passwordErrors[1]);
+
+    const nameFormControl = await screen.findByTestId("form-control-name");
+    const emailFormControl = await screen.findByTestId("form-control-email");
+    const passwordFormControl = await screen.findByTestId(
+      "form-control-password"
+    );
+
+    expect(nameFormControl).toHaveAttribute("aria-invalid", "true");
+    expect(nameFormControl).toHaveClass("is-invalid");
+    expect(emailFormControl).toHaveAttribute("aria-invalid", "true");
+    expect(emailFormControl).toHaveClass("is-invalid");
+    expect(passwordFormControl).toHaveAttribute("aria-invalid", "true");
+    expect(passwordFormControl).toHaveClass("is-invalid");
   });
 });

@@ -6,14 +6,18 @@ import {
   Table,
   Pagination,
   Spinner,
+  Button,
 } from "react-bootstrap";
 import { useInjection } from "inversify-react";
 import { usercases } from "../../../diSymbols";
 import GetUsersUserCase from "../usercases/get-users/GetUsersUserCase";
 import { GetUsersUserCaseResponse } from "../usercases/get-users/GetUsersUserCaseResponse";
 import Pageable from "../../../common/pagination/Pageable";
+import { useNavigate } from "react-router-dom";
 
 const UsersList = () => {
+  const navigate = useNavigate();
+
   const getUsersUserCase = useInjection<GetUsersUserCase>(usercases.GET_USERS);
 
   const [usersData, setUsersData] = useState<GetUsersUserCaseResponse[]>([]);
@@ -38,6 +42,10 @@ const UsersList = () => {
     [fetchData]
   );
 
+  const handleAdd = useCallback(() => {
+    navigate("/users/new");
+  }, [navigate]);
+
   useEffect(() => {
     fetchData({ pageNumber: 0 });
   }, [fetchData]);
@@ -51,14 +59,20 @@ const UsersList = () => {
   }
 
   return (
-    <Container>
+    <Container as="section">
       <Row className="my-2">
         <Col
-          md={8}
+          as="header"
+          xs={8}
           className="d-flex justify-content-start"
           data-testid="header"
         >
           <h1 className="fs-2">Users</h1>
+        </Col>
+        <Col xs={4} className="d-flex justify-content-end">
+          <Button onClick={handleAdd} data-testid="add-button">
+            Add
+          </Button>
         </Col>
       </Row>
 

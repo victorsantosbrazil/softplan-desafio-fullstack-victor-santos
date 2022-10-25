@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { act } from "react-dom/test-utils";
 import { setTimeout } from "timers/promises";
 import { Page } from "../../../../common/pagination";
@@ -9,6 +9,14 @@ import UsersList from "../UsersList";
 const mockGetUsersUserCase = {
   run: jest.fn(),
 };
+
+const mockNavigate = jest.fn();
+
+jest.mock("react-router-dom", () => {
+  return {
+    useNavigate: () => mockNavigate,
+  };
+});
 
 jest.mock("inversify-react", () => {
   const useInjection = () => {
@@ -377,4 +385,20 @@ describe("UsersList test", () => {
     expect(tableRowUser2).toHaveTextContent(mockNewPageUsersData[0].name);
     expect(tableRowUser2).toHaveTextContent(mockNewPageUsersData[0].role);
   });
+});
+
+it("should navigate to new route when click on add button", async () => {
+  mockGetUsersUserCase.run.mockResolvedValue(
+    new Page<GetUsersUserCaseResponse>(
+      [],
+      new Pageable({ pageNumber: 0, isFirst: true, isLast: true })
+    )
+  );
+  render(<UsersList />);
+
+  const addButton = await screen.findByTestId("add-button");
+
+  fireEvent.click(addButton);
+
+  expect(mockNavigate).toBeCalledWith("/users/new");
 });
