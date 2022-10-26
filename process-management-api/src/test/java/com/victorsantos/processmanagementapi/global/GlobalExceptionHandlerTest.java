@@ -20,6 +20,7 @@ import com.victorsantos.processmanagementapi.common.responses.ErrorResponse;
 import com.victorsantos.processmanagementapi.common.responses.ErrorType;
 import com.victorsantos.processmanagementapi.common.responses.ValidationErrorResponse;
 import com.victorsantos.processmanagementapi.exceptions.NotFoundException;
+import com.victorsantos.processmanagementapi.exceptions.UnauthorizedException;
 import com.victorsantos.processmanagementapi.exceptions.ValidationException;
 import com.victorsantos.processmanagementapi.utils.validation.ConstraintViolation;
 
@@ -80,6 +81,31 @@ public class GlobalExceptionHandlerTest {
         request.getServletPath());
 
     ResponseEntity<ErrorResponse> expectedResponse = ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(expectedBody);
+
+    assertEquals(expectedResponse.getStatusCode(), response.getStatusCode());
+    assertNotNull(responseBody);
+    assertEquals(expectedBody.getMessage(), responseBody.getMessage());
+    assertEquals(expectedBody.getPath(), responseBody.getPath());
+  }
+
+  @Test
+  void whenHandleUnauthorizedExceptionThenReturnErrorResponse() {
+    MockHttpServletRequest request = new MockHttpServletRequest();
+
+    UnauthorizedException exception = new UnauthorizedException("Resource not found");
+
+    ResponseEntity<ErrorResponse> response = exceptionHandler.handleUnauthorizedException(exception, request);
+
+    ErrorResponse responseBody = response.getBody();
+
+    ErrorResponse expectedBody = new ErrorResponse(LocalDateTime.now(),
+        HttpStatus.UNAUTHORIZED.value(),
+        ErrorType.UNAUTHORIZED,
+        exception.getMessage(),
+        request.getServletPath());
+
+    ResponseEntity<ErrorResponse> expectedResponse = ResponseEntity.status(HttpStatus.UNAUTHORIZED)
         .body(expectedBody);
 
     assertEquals(expectedResponse.getStatusCode(), response.getStatusCode());

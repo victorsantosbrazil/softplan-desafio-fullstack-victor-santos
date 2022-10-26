@@ -44,7 +44,7 @@ class CreateUserCaseIntegrationTest {
   private PasswordEncoder passwordEncoder;
 
   @AfterEach
-  public void setup() {
+  public void tearDown() {
     userJpaRepository.deleteAll();
   }
 

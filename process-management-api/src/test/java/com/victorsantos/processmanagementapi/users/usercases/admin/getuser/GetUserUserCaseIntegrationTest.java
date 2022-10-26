@@ -35,7 +35,7 @@ class GetUserUserCaseIntegrationTest {
   private UserJpaRepository userJpaRepository;
 
   @AfterEach
-  public void setup() {
+  public void tearDown() {
     userJpaRepository.deleteAll();
   }
 

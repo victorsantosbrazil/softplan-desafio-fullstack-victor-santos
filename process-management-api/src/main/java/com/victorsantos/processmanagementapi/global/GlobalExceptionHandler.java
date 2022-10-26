@@ -13,6 +13,7 @@ import com.victorsantos.processmanagementapi.common.responses.ErrorResponse;
 import com.victorsantos.processmanagementapi.common.responses.ErrorType;
 import com.victorsantos.processmanagementapi.common.responses.ValidationErrorResponse;
 import com.victorsantos.processmanagementapi.exceptions.NotFoundException;
+import com.victorsantos.processmanagementapi.exceptions.UnauthorizedException;
 import com.victorsantos.processmanagementapi.exceptions.ValidationException;
 
 @ControllerAdvice
@@ -49,6 +50,21 @@ public class GlobalExceptionHandler {
 
     return ResponseEntity.status(httpStatus).body(response);
 
+  }
+
+  @ExceptionHandler(UnauthorizedException.class)
+  public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException e,
+      HttpServletRequest request) {
+    HttpStatus httpStatus = HttpStatus.UNAUTHORIZED;
+
+    ErrorResponse response = new ErrorResponse(
+        LocalDateTime.now(),
+        httpStatus.value(),
+        ErrorType.UNAUTHORIZED,
+        e.getMessage(),
+        request.getServletPath());
+
+    return ResponseEntity.status(httpStatus).body(response);
   }
 
 }
