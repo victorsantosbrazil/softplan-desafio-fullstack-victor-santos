@@ -9,20 +9,23 @@ import {
   Button,
   ButtonGroup,
 } from "react-bootstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPen, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { useInjection } from "inversify-react";
 import { usercases } from "../../../diSymbols";
 import GetUsersUserCase from "../usercases/get-users/GetUsersUserCase";
 import { GetUsersUserCaseResponse } from "../usercases/get-users/GetUsersUserCaseResponse";
 import Pageable from "../../../common/pagination/Pageable";
 import { useNavigate } from "react-router-dom";
+import DeleteUserUserCase from "../usercases/delete-user/DeleteUserUserCase";
 
 const UsersList = () => {
   const navigate = useNavigate();
 
   const getUsersUserCase = useInjection<GetUsersUserCase>(usercases.GET_USERS);
-  const deleteUserUserCase = useInjection<GetUsersUserCase>(
+  const deleteUserUserCase = useInjection<DeleteUserUserCase>(
     usercases.DELETE_USER
-  ) as any;
+  );
 
   const [usersData, setUsersData] = useState<GetUsersUserCaseResponse[]>([]);
   const [pageable, setPageable] = useState<Pageable>(
@@ -104,12 +107,13 @@ const UsersList = () => {
       <Table data-testid="users-table" striped>
         <thead data-testid="users-table-header">
           <tr>
-            <th className="col-md-6" data-testid="users-table-header-name">
+            <th className="col-6" data-testid="users-table-header-name">
               Name
             </th>
-            <th className="col-md-3" data-testid="users-table-header-role">
+            <th className="col-4" data-testid="users-table-header-role">
               Role
             </th>
+            <th className="col-2" data-testid="users-table-header-role"></th>
           </tr>
         </thead>
         <tbody data-testid="users-table-body">
@@ -131,14 +135,14 @@ const UsersList = () => {
                       onClick={() => handleEdit(userData.id)}
                       data-testid={`users-table-row-user-${userData.id}-edit-action`}
                     >
-                      Edit
+                      <FontAwesomeIcon icon={faPen} />
                     </Button>
                     <Button
                       variant="danger"
                       onClick={() => handleDelete(userData.id)}
                       data-testid={`users-table-row-user-${userData.id}-delete-action`}
                     >
-                      Delete
+                      <FontAwesomeIcon icon={faTrash} />
                     </Button>
                   </ButtonGroup>
                 </td>
