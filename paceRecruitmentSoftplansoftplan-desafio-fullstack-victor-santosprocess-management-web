@@ -1,0 +1,23 @@
+[33md188182[m[33m ([m[1;36mHEAD -> [m[1;32mdev[m[33m, [m[1;31morigin/dev[m[33m, [m[1;32mback/fix/update-user[m[33m)[m [BACKEND] Fix update allowing email remain the same
+[33m1eac7d0[m[33m ([m[1;32mfront/feat/update-user[m[33m)[m Update user added
+[33m2bbd2f2[m [BACKEND] Error type added to error responses
+[33m99e08eb[m[33m ([m[1;32mfront/feat/create-user[m[33m)[m Show validation errors on users form
+[33m2bada93[m[33m ([m[1;31morigin/front/feat/create-user[m[33m)[m [FRONTEND] Feature create user added
+[33m2bfc278[m [FRONTEND] Router added
+[33mb10b051[m Merge branch 'front/feat/list-users' into dev
+[33md07f1f9[m[33m ([m[1;31morigin/front/feat/list-users[m[33m, [m[1;32mfront/feat/list-users[m[33m)[m [FRONTEND] Feature list users added
+[33m724e591[m [BACKEND] Configuring cors to allow all origins and methods
+[33me483fa3[m [BACKEND] Feature delete user added
+[33mae0245f[m [BACKEND] Feature update user added
+[33m62485a3[m [BACKEND] Feat get user added
+[33me98105b[m [BACKEND] Feat get users added
+[33m18863e2[m [BACKEND] Validate user role when adding users
+[33m62bf284[m [BACKEND] Handle validation exceptions
+[33mc529779[m [BACKEND] Create user feature added
+[33m08d7ab3[m Project Start
+[33m515c357[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m Update README.MD
+[33mf1715c4[m Update README.MD
+[33me6b9f43[m Escopo do desafio - Correção de digitação
+[33mca32692[m Escopo do desafio
+[33ma2b6f04[m Escopo do desafio
+[33md006ff0[m Versão inicial do desafio fullstack da Softplan.
