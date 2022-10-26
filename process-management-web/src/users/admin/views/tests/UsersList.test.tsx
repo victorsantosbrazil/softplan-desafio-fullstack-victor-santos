@@ -1,12 +1,18 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { act } from "react-dom/test-utils";
 import { setTimeout } from "timers/promises";
 import { Page } from "../../../../common/pagination";
 import Pageable from "../../../../common/pagination/Pageable";
+import { usercases } from "../../../../diSymbols";
+import { waitComponentBeStable } from "../../../../testUtils";
 import { GetUsersUserCaseResponse } from "../../usercases/get-users/GetUsersUserCaseResponse";
 import UsersList from "../UsersList";
 
 const mockGetUsersUserCase = {
+  run: jest.fn(),
+};
+
+const mockDeleteUserUserCase = {
   run: jest.fn(),
 };
 
@@ -19,8 +25,14 @@ jest.mock("react-router-dom", () => {
 });
 
 jest.mock("inversify-react", () => {
-  const useInjection = () => {
-    return mockGetUsersUserCase;
+  const useInjection = (identifier: Symbol) => {
+    switch (identifier) {
+      case usercases.GET_USERS:
+        return mockGetUsersUserCase;
+      case usercases.DELETE_USER:
+        return mockDeleteUserUserCase;
+    }
+    throw Error("Dependency not found");
   };
 
   return {
@@ -99,9 +111,7 @@ describe("UsersList test", () => {
     const tableHeaderRole = await screen.findByTestId(
       "users-table-header-role"
     );
-    const tableHeaderActions = await screen.findByTestId(
-      "users-table-header-actions"
-    );
+
     const tableBody = await screen.findByTestId("users-table-body");
 
     const tableRowUser1 = await screen.findByTestId("users-table-row-user-1");
@@ -114,6 +124,9 @@ describe("UsersList test", () => {
     const tableRowUser1EditAction = await screen.findByTestId(
       "users-table-row-user-1-edit-action"
     );
+    const tableRowUser1DeleteAction = await screen.findByTestId(
+      "users-table-row-user-1-delete-action"
+    );
 
     const tableRowUser2 = await screen.findByTestId("users-table-row-user-2");
     const tableRowUser2Name = await screen.findByTestId(
@@ -124,6 +137,9 @@ describe("UsersList test", () => {
     );
     const tableRowUser2EditAction = await screen.findByTestId(
       "users-table-row-user-2-edit-action"
+    );
+    const tableRowUser2DeleteAction = await screen.findByTestId(
+      "users-table-row-user-2-delete-action"
     );
 
     const tableRowUser3 = await screen.findByTestId("users-table-row-user-3");
@@ -136,25 +152,30 @@ describe("UsersList test", () => {
     const tableRowUser3EditAction = await screen.findByTestId(
       "users-table-row-user-3-edit-action"
     );
+    const tableRowUser3DeleteAction = await screen.findByTestId(
+      "users-table-row-user-3-delete-action"
+    );
 
     expect(table).toBeInTheDocument();
     expect(table).toContainElement(tableHeader);
     expect(table).toContainElement(tableBody);
     expect(tableHeader).toContainElement(tableHeaderName);
     expect(tableHeader).toContainElement(tableHeaderRole);
-    expect(tableHeader).toContainElement(tableHeaderActions);
     expect(tableBody).toContainElement(tableRowUser1);
     expect(tableBody).toContainElement(tableRowUser2);
     expect(tableBody).toContainElement(tableRowUser3);
     expect(tableRowUser1).toContainElement(tableRowUser1Name);
     expect(tableRowUser1).toContainElement(tableRowUser1Role);
     expect(tableRowUser1).toContainElement(tableRowUser1EditAction);
+    expect(tableRowUser1).toContainElement(tableRowUser1DeleteAction);
     expect(tableRowUser2).toContainElement(tableRowUser2Name);
     expect(tableRowUser2).toContainElement(tableRowUser2Role);
     expect(tableRowUser2).toContainElement(tableRowUser2EditAction);
+    expect(tableRowUser2).toContainElement(tableRowUser2DeleteAction);
     expect(tableRowUser3).toContainElement(tableRowUser3Name);
     expect(tableRowUser3).toContainElement(tableRowUser3Role);
     expect(tableRowUser3).toContainElement(tableRowUser3EditAction);
+    expect(tableRowUser3).toContainElement(tableRowUser3DeleteAction);
   });
 
   it("should renders pagination correctly", async () => {
@@ -403,46 +424,84 @@ describe("UsersList test", () => {
     expect(tableRowUser2).toHaveTextContent(mockNewPageUsersData[0].name);
     expect(tableRowUser2).toHaveTextContent(mockNewPageUsersData[0].role);
   });
-});
 
-it("should navigate to new user form when click on add button", async () => {
-  mockGetUsersUserCase.run.mockResolvedValue(
-    new Page<GetUsersUserCaseResponse>(
-      [],
-      new Pageable({ pageNumber: 0, isFirst: true, isLast: true })
-    )
-  );
-  render(<UsersList />);
+  it("should navigate to new user form when click on add button", async () => {
+    mockGetUsersUserCase.run.mockResolvedValue(
+      new Page<GetUsersUserCaseResponse>(
+        [],
+        new Pageable({ pageNumber: 0, isFirst: true, isLast: true })
+      )
+    );
+    render(<UsersList />);
 
-  const addButton = await screen.findByTestId("add-button");
+    const addButton = await screen.findByTestId("add-button");
 
-  fireEvent.click(addButton);
+    fireEvent.click(addButton);
 
-  expect(mockNavigate).toBeCalledWith("/users/new");
-});
+    expect(mockNavigate).toBeCalledWith("/users/new");
+  });
 
-it("should navigate to edit user form when click on a edit button", async () => {
-  const editedUserId = "2";
+  it("should navigate to edit form when click on edit action on the table", async () => {
+    const editedUserId = "2";
 
-  mockGetUsersUserCase.run.mockResolvedValue(
-    new Page<GetUsersUserCaseResponse>(
+    mockGetUsersUserCase.run.mockResolvedValue(
+      new Page<GetUsersUserCaseResponse>(
+        [
+          new GetUsersUserCaseResponse({
+            id: editedUserId,
+            name: "Jefter Oliveira",
+            role: "PROCESS_SCREENER",
+          }),
+        ],
+        new Pageable({ pageNumber: 0, isFirst: true, isLast: true })
+      )
+    );
+    render(<UsersList />);
+
+    const editButton = await screen.findByTestId(
+      `users-table-row-user-${editedUserId}-edit-action`
+    );
+
+    fireEvent.click(editButton);
+
+    expect(mockNavigate).toBeCalledWith(`/users/${editedUserId}`);
+  });
+
+  it("should delete user when click on delete action on table", async () => {
+    const userId = "2";
+
+    const contentBeforeDelete = new Page<GetUsersUserCaseResponse>(
       [
         new GetUsersUserCaseResponse({
-          id: editedUserId,
+          id: userId,
           name: "Jefter Oliveira",
           role: "PROCESS_SCREENER",
         }),
       ],
       new Pageable({ pageNumber: 0, isFirst: true, isLast: true })
-    )
-  );
-  render(<UsersList />);
+    );
 
-  const editButton = await screen.findByTestId(
-    `users-table-row-user-${editedUserId}-edit-action`
-  );
+    const contentAfterDelete = new Page<GetUsersUserCaseResponse>(
+      [],
+      new Pageable({ pageNumber: 0, isFirst: true, isLast: true })
+    );
 
-  fireEvent.click(editButton);
+    mockGetUsersUserCase.run.mockResolvedValueOnce(contentBeforeDelete);
+    mockGetUsersUserCase.run.mockResolvedValueOnce(contentAfterDelete);
 
-  expect(mockNavigate).toBeCalledWith(`/users/${editedUserId}`);
+    render(<UsersList />);
+
+    const deleteButton = await screen.findByTestId(
+      `users-table-row-user-${userId}-delete-action`
+    );
+
+    expect(mockGetUsersUserCase.run).toBeCalledTimes(1);
+
+    fireEvent.click(deleteButton);
+
+    await waitComponentBeStable();
+
+    expect(mockDeleteUserUserCase.run).toBeCalledWith(userId);
+    expect(mockGetUsersUserCase.run).toBeCalledTimes(2);
+  });
 });

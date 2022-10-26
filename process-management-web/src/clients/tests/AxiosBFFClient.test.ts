@@ -8,6 +8,7 @@ const mockAxiosInstance = {
   get: jest.fn(),
   post: jest.fn(),
   patch: jest.fn(),
+  delete: jest.fn(),
 };
 
 jest.mock("axios", () => {
@@ -130,5 +131,17 @@ describe("BFFClient tests", () => {
     await bffClient.patch(url, {});
 
     expect(bffClientExceptionHandler.handle).toBeCalledWith(error);
+  });
+
+  it("should delete", async () => {
+    const url = "/users/1";
+
+    const params = {
+      msg: "Hi",
+    };
+
+    await bffClient.delete(url, { params });
+
+    expect(mockAxiosInstance.delete).toBeCalledWith(url, { params });
   });
 });

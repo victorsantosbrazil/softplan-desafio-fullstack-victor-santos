@@ -20,9 +20,14 @@ const UsersList = () => {
   const navigate = useNavigate();
 
   const getUsersUserCase = useInjection<GetUsersUserCase>(usercases.GET_USERS);
+  const deleteUserUserCase = useInjection<GetUsersUserCase>(
+    usercases.DELETE_USER
+  ) as any;
 
   const [usersData, setUsersData] = useState<GetUsersUserCaseResponse[]>([]);
-  const [pageable, setPageable] = useState<Pageable>();
+  const [pageable, setPageable] = useState<Pageable>(
+    new Pageable({ pageNumber: 0, isFirst: true, isLast: true })
+  );
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchData = useCallback(
@@ -52,6 +57,14 @@ const UsersList = () => {
       navigate(`/users/${id}`);
     },
     [navigate]
+  );
+
+  const handleDelete = useCallback(
+    async (id: string) => {
+      await deleteUserUserCase.run(id);
+      await fetchData({ pageNumber: pageable.pageNumber });
+    },
+    [deleteUserUserCase, fetchData, pageable]
   );
 
   useEffect(() => {
@@ -97,9 +110,6 @@ const UsersList = () => {
             <th className="col-md-3" data-testid="users-table-header-role">
               Role
             </th>
-            <th className="col-md-3" data-testid="users-table-header-actions">
-              Actions
-            </th>
           </tr>
         </thead>
         <tbody data-testid="users-table-body">
@@ -115,13 +125,20 @@ const UsersList = () => {
                 <td data-testid={`users-table-row-user-${userData.id}-role`}>
                   {userData.role}
                 </td>
-                <td>
-                  <ButtonGroup>
+                <td className="d-flex justify-content-end">
+                  <ButtonGroup className=" border">
                     <Button
                       onClick={() => handleEdit(userData.id)}
                       data-testid={`users-table-row-user-${userData.id}-edit-action`}
                     >
                       Edit
+                    </Button>
+                    <Button
+                      variant="danger"
+                      onClick={() => handleDelete(userData.id)}
+                      data-testid={`users-table-row-user-${userData.id}-delete-action`}
+                    >
+                      Delete
                     </Button>
                   </ButtonGroup>
                 </td>

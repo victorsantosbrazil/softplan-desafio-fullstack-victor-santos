@@ -11,6 +11,7 @@ import AxiosBFFClientExceptionHandler from "./clients/AxiosBFFClientExceptionHan
 import BFFClientExceptionHandler from "./clients/BFFClientExceptionHandler";
 import GetUserUserCaseImpl from "./users/admin/usercases/get-user/GetUserUserCaseImpl";
 import UpdateUserUserCaseImpl from "./users/admin/usercases/update-user/UpdateUserUserCaseImpl";
+import DeleteUserUserCaseImpl from "./users/admin/usercases/delete-user/DeleteUserUserCaseImpl";
 
 const container = new Container();
 
@@ -34,5 +35,9 @@ container
 container
   .bind(injectionSymbols.usercases.UPDATE_USER)
   .to(UpdateUserUserCaseImpl);
+
+container
+  .bind(injectionSymbols.usercases.DELETE_USER)
+  .to(DeleteUserUserCaseImpl);
 
 export default container;

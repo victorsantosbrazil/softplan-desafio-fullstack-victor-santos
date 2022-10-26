@@ -45,4 +45,8 @@ export default class AxiosBFFClient implements BFFClient {
       this._exceptionHandler.handle(err as Error);
     }
   }
+
+  delete(url: string, config?: HttpRequestConfig | undefined): Promise<any> {
+    return this.httpClient.delete(url, config);
+  }
 }
