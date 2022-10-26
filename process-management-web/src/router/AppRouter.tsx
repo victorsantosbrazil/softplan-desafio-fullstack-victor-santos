@@ -1,17 +1,17 @@
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import LoggedArea from "../templates/LoggedArea";
 import UsersForm from "../users/admin/views/UsersForm";
-import UsersList from "../users/admin/views/UsersList";
+import LoggedAreaRouter from "./LoggedAreaRouter";
 
 const AppRouter = () => {
-  const defaultRoute = "/users";
-
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to={defaultRoute} replace />} />
-        <Route element={<UsersList />} path="/users"></Route>
-        <Route element={<UsersForm />} path="/users/new"></Route>
-        <Route element={<UsersForm />} path="/users/:id"></Route>
+        <Route
+          path="*"
+          element={<LoggedArea children={<LoggedAreaRouter />} />}
+        ></Route>
+        <Route path="/login" element={<UsersForm />}></Route>
       </Routes>
     </BrowserRouter>
   );

@@ -1,11 +1,11 @@
 import "reflect-metadata";
 import { inject, injectable } from "inversify";
 import BFFClient from "../../../../clients/BFFClient";
-import { PageParams, Page } from "../../../../common/pagination";
+import { PageParams, Page } from "../../../../common/utils/pagination";
 import { clients } from "../../../../diSymbols";
 import GetUsersUserCase from "./GetUsersUserCase";
 import { GetUsersUserCaseResponse } from "./GetUsersUserCaseResponse";
-import Pageable from "../../../../common/pagination/Pageable";
+import Pageable from "../../../../common/utils/pagination/Pageable";
 
 @injectable()
 export default class GetUsersUserCaseImpl implements GetUsersUserCase {

@@ -1,5 +1,5 @@
 import BFFClient from "../../../../../clients/BFFClient";
-import { PageParams } from "../../../../../common/pagination";
+import { PageParams } from "../../../../../common/utils/pagination";
 import GetUsersUserCaseImpl from "../GetUsersUserCaseImpl";
 
 describe("GetUsersUserCase tests", () => {

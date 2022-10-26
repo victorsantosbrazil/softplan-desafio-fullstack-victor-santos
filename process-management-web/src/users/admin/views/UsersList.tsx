@@ -15,7 +15,7 @@ import { useInjection } from "inversify-react";
 import { usercases } from "../../../diSymbols";
 import GetUsersUserCase from "../usercases/get-users/GetUsersUserCase";
 import { GetUsersUserCaseResponse } from "../usercases/get-users/GetUsersUserCaseResponse";
-import Pageable from "../../../common/pagination/Pageable";
+import Pageable from "../../../common/utils/pagination/Pageable";
 import { useNavigate } from "react-router-dom";
 import DeleteUserUserCase from "../usercases/delete-user/DeleteUserUserCase";
 
@@ -113,7 +113,7 @@ const UsersList = () => {
             <th className="col-4" data-testid="users-table-header-role">
               Role
             </th>
-            <th className="col-2" data-testid="users-table-header-role"></th>
+            <th className="col-2"></th>
           </tr>
         </thead>
         <tbody data-testid="users-table-body">

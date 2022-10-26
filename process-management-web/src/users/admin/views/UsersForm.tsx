@@ -127,7 +127,7 @@ const UsersForm = () => {
   }, [id, fetchUser]);
 
   return (
-    <Container className="my-2" as="section">
+    <Container className="p-4" as="section">
       <Form data-testid="form">
         <Row>
           <Col

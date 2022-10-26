@@ -1,4 +1,4 @@
-import { Page, PageParams } from "../../../../common/pagination";
+import { Page, PageParams } from "../../../../common/utils/pagination";
 import { GetUsersUserCaseResponse } from "./GetUsersUserCaseResponse";
 
 export default interface GetUsersUserCase {

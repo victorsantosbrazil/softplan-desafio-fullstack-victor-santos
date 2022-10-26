@@ -1,8 +1,8 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { act } from "react-dom/test-utils";
 import { setTimeout } from "timers/promises";
-import { Page } from "../../../../common/pagination";
-import Pageable from "../../../../common/pagination/Pageable";
+import { Page } from "../../../../common/utils/pagination";
+import Pageable from "../../../../common/utils/pagination/Pageable";
 import { usercases } from "../../../../diSymbols";
 import { waitComponentBeStable } from "../../../../testUtils";
 import { GetUsersUserCaseResponse } from "../../usercases/get-users/GetUsersUserCaseResponse";
