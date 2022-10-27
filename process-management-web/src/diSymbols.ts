@@ -9,4 +9,5 @@ export const usercases = {
   GET_USERS: Symbol.for("users.admin.usercases.getusers"),
   UPDATE_USER: Symbol.for("users.admin.usercases.updateuser"),
   DELETE_USER: Symbol.for("users.admin.usercases.deleteuser"),
+  LOGIN: Symbol.for("users.common.usercases.login"),
 };

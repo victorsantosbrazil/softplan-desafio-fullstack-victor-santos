@@ -1,9 +1,39 @@
 import { AxiosError, AxiosResponse } from "axios";
+import { UnauthorizedException } from "../../exceptions/UnauthorizedException";
 import { ValidationException } from "../../exceptions/ValidationException";
 import AxiosBFFClientExceptionHandler from "../AxiosBFFClientExceptionHandler";
 
 describe("AxiosBFFClientExceptionHandler tests", () => {
   const exceptionHandler = new AxiosBFFClientExceptionHandler();
+
+  it("when throw not handled axios error then re-throw it", () => {
+    const axiosResponse: Partial<AxiosResponse> = {
+      data: {
+        error: "UNKNOWN_ERROR",
+        message: "Unknown error",
+      },
+    };
+
+    const axiosError = new AxiosError(
+      "Request failed with status code 500",
+      "500",
+      {},
+      {},
+      axiosResponse as any
+    );
+
+    const t = () => exceptionHandler.handle(axiosError);
+
+    expect(t).toThrow(axiosError);
+  });
+
+  it("when unexpected error then re-throw", () => {
+    const error = new Error();
+
+    const t = () => exceptionHandler.handle(error);
+
+    expect(t).toThrow(Error);
+  });
 
   it("should throw validation exception when validation error", () => {
     const axiosResponseDataViolations = [
@@ -61,17 +91,17 @@ describe("AxiosBFFClientExceptionHandler tests", () => {
     }
   });
 
-  it("when throw not handled axios error then re-throw it", () => {
+  it("should throw unauthorized exception when unauthorized error", () => {
     const axiosResponse: Partial<AxiosResponse> = {
       data: {
-        error: "UNKNOWN_ERROR",
-        message: "Unknown error",
+        error: "UNAUTHORIZED",
+        message: "Unauthorized",
       },
     };
 
     const axiosError = new AxiosError(
-      "Request failed with status code 500",
-      "500",
+      "Request failed with status code 401",
+      "401",
       {},
       {},
       axiosResponse as any
@@ -79,14 +109,6 @@ describe("AxiosBFFClientExceptionHandler tests", () => {
 
     const t = () => exceptionHandler.handle(axiosError);
 
-    expect(t).toThrow(axiosError);
-  });
-
-  it("when unexpected error then re-throw", () => {
-    const error = new Error();
-
-    const t = () => exceptionHandler.handle(error);
-
-    expect(t).toThrow(Error);
+    expect(t).toThrow(UnauthorizedException);
   });
 });

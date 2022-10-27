@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import LoggedArea from "../templates/LoggedArea";
-import UsersForm from "../users/admin/views/UsersForm";
+import LoginForm from "../users/common/views/LoginForm";
 import LoggedAreaRouter from "./LoggedAreaRouter";
 
 const AppRouter = () => {
@@ -11,7 +11,7 @@ const AppRouter = () => {
           path="*"
           element={<LoggedArea children={<LoggedAreaRouter />} />}
         ></Route>
-        <Route path="/login" element={<UsersForm />}></Route>
+        <Route path="/login" element={<LoginForm />}></Route>
       </Routes>
     </BrowserRouter>
   );

@@ -1,5 +1,6 @@
 import { AxiosError } from "axios";
 import { injectable } from "inversify/lib/annotation/injectable";
+import { UnauthorizedException } from "../exceptions/UnauthorizedException";
 import { ValidationException } from "../exceptions/ValidationException";
 import BFFClientExceptionHandler from "./BFFClientExceptionHandler";
 
@@ -13,6 +14,10 @@ export default class AxiosBFFClientExceptionHandler
 
       if (responseData.error === "VALIDATION") {
         this._handleValidationErrors(responseData);
+      }
+
+      if (responseData.error === "UNAUTHORIZED") {
+        this._handleUnauthorizedErrors(responseData);
       }
     }
 
@@ -42,5 +47,9 @@ export default class AxiosBFFClientExceptionHandler
       violations.set(propertyPath, propertyViolations);
     }
     return violations;
+  }
+
+  private _handleUnauthorizedErrors(responseData: any) {
+    throw new UnauthorizedException(responseData.message);
   }
 }

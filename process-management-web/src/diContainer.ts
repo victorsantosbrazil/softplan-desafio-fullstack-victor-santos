@@ -12,6 +12,7 @@ import BFFClientExceptionHandler from "./clients/BFFClientExceptionHandler";
 import GetUserUserCaseImpl from "./users/admin/usercases/get-user/GetUserUserCaseImpl";
 import UpdateUserUserCaseImpl from "./users/admin/usercases/update-user/UpdateUserUserCaseImpl";
 import DeleteUserUserCaseImpl from "./users/admin/usercases/delete-user/DeleteUserUserCaseImpl";
+import LoginUserCaseImpl from "./users/common/usercases/LoginUserCaseImpl";
 
 const container = new Container();
 
@@ -31,6 +32,8 @@ container.bind(injectionSymbols.usercases.GET_USER).to(GetUserUserCaseImpl);
 container
   .bind(injectionSymbols.usercases.CREATE_USER)
   .to(CreateUserUserCaseImpl);
+
+container.bind(injectionSymbols.usercases.LOGIN).to(LoginUserCaseImpl);
 
 container
   .bind(injectionSymbols.usercases.UPDATE_USER)
